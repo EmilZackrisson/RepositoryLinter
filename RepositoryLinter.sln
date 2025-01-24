@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryLinter", "RepositoryLinter\RepositoryLinter.csproj", "{26309C76-6E1C-42D3-9B6F-EE9DEF6086F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoLinterTests", "RepoLinterTests\RepoLinterTests.csproj", "{78AF0761-3AEE-42C4-BFE0-44530A854D23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26309C76-6E1C-42D3-9B6F-EE9DEF6086F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26309C76-6E1C-42D3-9B6F-EE9DEF6086F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26309C76-6E1C-42D3-9B6F-EE9DEF6086F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26309C76-6E1C-42D3-9B6F-EE9DEF6086F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78AF0761-3AEE-42C4-BFE0-44530A854D23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78AF0761-3AEE-42C4-BFE0-44530A854D23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78AF0761-3AEE-42C4-BFE0-44530A854D23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78AF0761-3AEE-42C4-BFE0-44530A854D23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
