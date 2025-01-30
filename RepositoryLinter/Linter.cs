@@ -4,7 +4,6 @@ namespace RepositoryLinter;
 
 public class Linter(Git git)
 {
-    private readonly Git _git = git;
     private readonly List<Checker> _checks = [];
 
     public void AddCheck(Checker check)
@@ -22,7 +21,15 @@ public class Linter(Git git)
     
     public void PrintResults()
     {
-        Console.WriteLine($"Report for {_git.RepositoryName}\n");
+        Console.WriteLine($"Report for {git.RepositoryName}\n");
+        Console.WriteLine($"Number of commits: {git.GetCommitCount()}");
+        
+        var contributors = git.GetContributors();
+        Console.WriteLine("Contributors:");
+        foreach (var contributor in contributors)
+        {
+            Console.WriteLine(contributor);
+        }
         
         foreach (var check in _checks)
         {

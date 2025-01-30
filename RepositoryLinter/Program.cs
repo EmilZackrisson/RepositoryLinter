@@ -62,7 +62,7 @@ pathArgument.AddValidator((path) =>
 });
 
 // Set handler for path command
-pathCommand.SetHandler((path, disableCleanup) =>
+pathCommand.SetHandler((path) =>
 {
     Console.WriteLine($"Linting path: {path}");
     var git = new Git(path)
@@ -86,9 +86,26 @@ pathCommand.SetHandler((path, disableCleanup) =>
         TipToFix = "Create a LICENCE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
     });
     
+    linter.AddCheck(new DirectoryExistsCheck(".github/workflows", git.PathToGitDirectory)
+    {
+        Name = "GitHub Workflow directory exists",
+        Description = "Check if GitHub Workflow directory exists",
+        TipToFix = "Create a GitHub Workflow directory. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
+        StatusWhenFailed = CheckStatus.Yellow
+    });
+    
+    linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory)
+    {
+        Name = "Test string exists",
+        Description = "Check if the string 'test' exists in the repository",
+        TipToFix = "Remove the string 'test' from the repository",
+        StatusWhenFailed = CheckStatus.Red,
+        InvertResult = true
+    });
+    
     linter.Run();
     linter.PrintResults();
 
-}, pathArgument, disableCleanupOption);
+}, pathArgument);
 
 return await rootCommand.InvokeAsync(args);

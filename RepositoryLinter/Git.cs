@@ -94,4 +94,60 @@ public class Git
         
         p.WaitForExit();
     }
+    
+    public int GetCommitCount()
+    {
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "git",
+                Arguments = $"rev-list --count HEAD",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = PathToGitDirectory
+            }
+        };
+        
+        var started = p.Start();
+        if (!started)
+        {
+            throw new Exception("Failed to start git rev-list");
+        }
+        
+        var output = p.StandardOutput.ReadToEnd();
+        p.WaitForExit();
+        
+        return int.Parse(output);
+    }
+    
+    public IEnumerable<string> GetContributors()
+    {
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "git",
+                Arguments = $"shortlog -sne HEAD",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = PathToGitDirectory
+            }
+        };
+        
+        var started = p.Start();
+        if (!started)
+        {
+            throw new Exception("Failed to start git shortlog");
+        }
+        
+        var output = p.StandardOutput.ReadToEnd();
+        p.WaitForExit();
+        
+        return output.Split("\n");
+    }
 }
