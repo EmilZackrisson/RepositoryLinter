@@ -22,4 +22,9 @@
       <ProjectReference Include="..\RepositoryLinter\RepositoryLinter.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="TestRepos\AllCheckerTestsShouldPass\" />
+      <Folder Include="TestRepos\TestCommitCountAndContribs\" />
+    </ItemGroup>
+
 </Project>

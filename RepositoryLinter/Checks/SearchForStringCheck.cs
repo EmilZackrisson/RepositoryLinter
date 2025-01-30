@@ -7,15 +7,30 @@ namespace RepositoryLinter.Checks;
 /// <param name="gitRepoPath">Path to git repository</param>
 public class SearchForStringCheck(string searchString, string gitRepoPath) : Checker
 {
-    public bool InvertResult { get; set; } = false;
+    public bool InvertResult { get; init; } = false;
+    private readonly List<string> _files = [];
     public override void Run()
     {
         var files = Directory.EnumerateFiles(gitRepoPath, "*.*", SearchOption.AllDirectories);
-        var found = files.Any(file => File.ReadAllText(file).Contains(searchString));
+
+        foreach (var file in files)
+        {
+            if (File.ReadAllText(file).Contains(searchString))
+            {
+                _files.Add(file);
+            }
+        }
+
+        var found = _files.Count != 0;
         if (InvertResult)
         {
             found = !found;
         }
         Status = found ? CheckStatus.Green : StatusWhenFailed;
+    }
+
+    public override string ToString()
+    {
+        return base.ToString() + $"\nSearch string: {searchString} found in following files:\n{string.Join("\n", _files)}";
     }
 }

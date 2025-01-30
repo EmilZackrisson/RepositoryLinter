@@ -33,7 +33,7 @@ public class Git
     {
         if (!Directory.Exists(localPath))
         {
-            throw new Exception("Path does not exist");
+            throw new DirectoryNotFoundException("Path does not exist");
         }
         
         // Check if the path is a git repository
@@ -46,6 +46,7 @@ public class Git
         RepositoryName = Path.GetFileName(localPath);
         ParentDirectory = Path.GetDirectoryName(localPath)!;
         PathToGitDirectory = localPath;
+        SaveToDisk = true;
     }
     
     ~Git()
@@ -147,7 +148,21 @@ public class Git
         
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
+
+        try
+        {
+            var lines = output.Split("\n");
         
-        return output.Split("\n");
+            return lines.Select(line =>
+            {
+                var parts = line.Split("\t");
+                return parts[1];
+            });
+        }
+        // If the output is empty, return an empty list
+        catch (IndexOutOfRangeException)
+        {
+            return new List<string>();
+        }
     }
 }
