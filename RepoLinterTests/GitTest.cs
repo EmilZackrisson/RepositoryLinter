@@ -14,26 +14,21 @@ public class GitTest
 
 
     [Fact]
-    public void Clone()
+    public void CloneGitRepository()
     {
-        Git git = new Git(new Uri("https://github.com/EmilZackrisson/TraefikAPI"), "/tmp/repolinter/git");
+        Git git = new Git(new Uri("https://github.com/EmilZackrisson/TraefikAPI"));
         git.Clone();
-        var directory = Path.Join(git.PathToGitDirectory, git.RepositoryName);
+        var directory = Path.Join(git.ParentDirectory, git.RepositoryName);
         _testOutputHelper.WriteLine("Git repository cloned to: " + directory);
         Assert.True(Directory.Exists(directory));
     }
-
+    
+    
+    
     [Fact]
-    public void GitCleanup_IfNotDisabled()
+    public void CreateGitObjectWithLocalPath()
     {
-        Git git = new Git(new Uri("https://github.com/EmilZackrisson/TraefikAPI"), "/tmp/repolinter/git");
-        var directory = git.PathToGitDirectory;
-        git.SaveToDisk = false;
-        git.Clone();
-        Assert.True(Directory.Exists(directory));
-        git = null;
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        Assert.False(Directory.Exists(directory));
+        Git git = new Git("/tmp/repolinter/git/TraefikAPI");
+        Assert.Equal("/tmp/repolinter/git/TraefikAPI", Path.Join(git.ParentDirectory, git.RepositoryName));
     }
 }
