@@ -43,6 +43,7 @@ urlCommand.SetHandler((url, disableCleanup, pathToSave) =>
     git.Clone();
     
     // Run linting pipeline
+    Run(git);
     
 }, urlArgument, disableCleanupOption, pathToSaveOption);
 
@@ -70,6 +71,14 @@ pathCommand.SetHandler((path) =>
         SaveToDisk = true
     };
 
+    Run(git);
+
+}, pathArgument);
+
+return await rootCommand.InvokeAsync(args);
+
+void Run(Git git)
+{
     // Run linting pipeline
     var linter = new Linter(git);
     linter.AddCheck(new FileExistsCheck("README.md", git.PathToGitDirectory)
@@ -105,7 +114,4 @@ pathCommand.SetHandler((path) =>
     
     linter.Run();
     linter.PrintResults();
-
-}, pathArgument);
-
-return await rootCommand.InvokeAsync(args);
+}

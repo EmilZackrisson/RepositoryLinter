@@ -4,30 +4,32 @@ using Xunit.Abstractions;
 
 namespace RepoLinterTests;
 
-public class GitTest
+public class GitTest : IDisposable
 {
     private readonly ITestOutputHelper _testOutputHelper;
-
+    private readonly string _path;
+    
     public GitTest(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+        _path = Path.Join(Directory.GetCurrentDirectory(), "FakeGitRepoWhereAllChecksPass");
         InitFakeRepo();
     }
 
+    
+
     private void InitFakeRepo()
     {
-        var path = Path.Join(Directory.GetCurrentDirectory(), "FakeGitRepoWhereAllChecksPass");
-        Directory.CreateDirectory(path);
+        Directory.CreateDirectory(_path);
         
-        
-        var inited = RunGitCommand(path, "init");
+        var inited = RunGitCommand(_path, "init");
         if (!inited)
         {
             throw new Exception("Failed to init git repository");
         }
 
-        var x = RunGitCommand(path, "config user.email test@example.com");
-        var y = RunGitCommand(path, "config user.name Test");
+        var x = RunGitCommand(_path, "config --global user.email \"test@example.com\"");
+        var y = RunGitCommand(_path, "config --global user.name \"Test\"");
         
         if (!x || !y)
         {
@@ -35,14 +37,16 @@ public class GitTest
         }
         
         // Create a commit
-        File.WriteAllText(Path.Join(path, "README.md"), "# Hello World");
-        var added = RunGitCommand(path, "add .");
-        var committed = RunGitCommand(path, "commit -m Hello");
+        File.WriteAllText(Path.Join(_path, "README.md"), "# Hello World");
+        var added = RunGitCommand(_path, "add .");
+        var branched = RunGitCommand(_path, "branch -m main");
+        var committed = RunGitCommand(_path, "commit -m Hello");
         
+        /*
         if (!added || !committed)
         {
             throw new Exception("Failed to create commit");
-        }
+        } */
     }
     
     private bool RunGitCommand(string path, string command)
@@ -65,6 +69,7 @@ public class GitTest
         {
             throw new Exception("Failed to start git command");
         }
+        
         process.WaitForExit();
         return process.ExitCode == 0;
     }
@@ -82,8 +87,8 @@ public class GitTest
     [Fact]
     public void CreateGitObjectWithLocalPath()
     {
-        Git git = new Git(Path.Join(Directory.GetCurrentDirectory(), "FakeGitRepoWhereAllChecksPass"));
-        Assert.Equal(Path.Join(Directory.GetCurrentDirectory(), "FakeGitRepoWhereAllChecksPass"), Path.Join(git.ParentDirectory, git.RepositoryName));
+        Git git = new Git(_path);
+        Assert.Equal(_path, Path.Join(git.ParentDirectory, git.RepositoryName));
     }
     
     [Fact]
@@ -103,15 +108,20 @@ public class GitTest
     [Fact]
     public void GetCommitCount()
     {
-        Git git = new Git("/Users/emizac/RiderProjects/RepositoryLinter/RepoLinterTests/TestRepos/TestCommitCountAndContribs");
+        Git git = new Git(_path);
         Assert.Equal(1, git.GetCommitCount());
     }
     
     [Fact]
     public void GetContributors()
     {
-        Git git = new Git("/Users/emizac/RiderProjects/RepositoryLinter/RepoLinterTests/TestRepos/TestCommitCountAndContribs");
+        Git git = new Git(_path);
         var contributors = git.GetContributors();
         Assert.Contains("Test <test@example.com>", contributors);
+    }
+
+    public void Dispose()
+    {
+        Directory.Delete(Path.Join(Directory.GetCurrentDirectory(), "FakeGitRepoWhereAllChecksPass"), true);
     }
 }

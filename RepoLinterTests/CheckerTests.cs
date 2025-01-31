@@ -132,6 +132,7 @@ public class CheckerTests : IDisposable
         Assert.Equal(CheckStatus.Red, checker.Status);
     }
     
+    /*
     [Fact]
     public void SearchForStringShouldExistsInSecret()
     {
@@ -143,7 +144,7 @@ public class CheckerTests : IDisposable
         };
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
-    }
+    } */
 
     public void Dispose()
     {

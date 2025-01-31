@@ -124,6 +124,11 @@ public class Git
         return int.Parse(output);
     }
     
+    /// <summary>
+    /// Returns a list of contributors to the repository
+    /// </summary>
+    /// <returns>A list of contributors</returns>
+    /// <exception cref="Exception">Failed to run git command</exception>
     public IEnumerable<string> GetContributors()
     {
         var p = new Process
@@ -149,20 +154,21 @@ public class Git
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
 
-        try
+        var lines = output.Split("\n");
+        var contributors = new List<string>();
+
+        foreach (var line in lines)
         {
-            var lines = output.Split("\n");
-        
-            return lines.Select(line =>
+            var tmp = line.Trim();
+            if (tmp.Length == 0)
             {
-                var parts = line.Split("\t");
-                return parts[1];
-            });
+                continue;
+            }
+            
+            contributors.Add(tmp.Split("\t")[1].Trim());
+
         }
-        // If the output is empty, return an empty list
-        catch (IndexOutOfRangeException)
-        {
-            return new List<string>();
-        }
+        
+        return contributors;
     }
 }
