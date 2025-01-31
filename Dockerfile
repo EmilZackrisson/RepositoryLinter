@@ -1,5 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
-RUN apt update && apt install -y git
+RUN apt update && apt install -y git curl
+
+# Install trufflehog
+RUN curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
 USER $APP_UID
 WORKDIR /app
 

@@ -110,6 +110,14 @@ void Run(Git git)
         TipToFix = "Remove the string 'test' from the repository",
         StatusWhenFailed = CheckStatus.Red,
         InvertResult = true
+    }); 
+    
+    linter.AddCheck(new SecretsCheck(git.PathToGitDirectory)
+    {
+        Name = "Secrets check",
+        Description = "Check if the repository contains any secrets",
+        TipToFix = "Remove the secrets found",
+        StatusWhenFailed = CheckStatus.Red
     });
     
     linter.Run();
