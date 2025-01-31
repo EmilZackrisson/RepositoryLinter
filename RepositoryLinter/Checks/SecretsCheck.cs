@@ -39,11 +39,11 @@ public class SecretsCheck(string pathToGitRepo) : Checker
     {
         try
         {
-            var output = $"{json.DetectorDescription} Found in {json.SourceMetadata.Data.Filesystem.file} at line {json.SourceMetadata.Data.Filesystem.line}";
+            var output = $"{json.SourceMetadata.Data.Filesystem.file} line {json.SourceMetadata.Data.Filesystem.line} - {json.DetectorDescription}";
 
             return output;
         }
-        catch (Exception _)
+        catch (Exception)
         {
             return null;
         }
@@ -52,8 +52,6 @@ public class SecretsCheck(string pathToGitRepo) : Checker
     private void RunTrufflehogCommand(string command)
     {
         var parentDirectory = Path.GetDirectoryName(pathToGitRepo)!;
-        
-        Console.WriteLine($"Running trufflehog command: {command} in {parentDirectory}");
         
         var p = new Process
         {

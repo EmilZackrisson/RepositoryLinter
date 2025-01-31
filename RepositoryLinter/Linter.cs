@@ -5,6 +5,7 @@ namespace RepositoryLinter;
 public class Linter(Git git)
 {
     private readonly List<Checker> _checks = [];
+    public bool DoNotTruncateOutput { get; init; } = false;
 
     /// <summary>
     /// Add a check to the linter.
@@ -31,8 +32,12 @@ public class Linter(Git git)
     /// </summary>
     public void PrintResults()
     {
+        // Print "-" for the entire width of the console
+        var dashes = new string('-', Console.WindowWidth);
+        Console.WriteLine(dashes);
+        
         Console.WriteLine($"Report for {git.RepositoryName}\n");
-        Console.WriteLine($"Number of commits: {git.GetCommitCount()}");
+        Console.WriteLine($"Number of commits: {git.GetCommitCount()}\n");
         
         var contributors = git.GetContributors();
         Console.WriteLine("Contributors:");
@@ -40,10 +45,30 @@ public class Linter(Git git)
         {
             Console.WriteLine(contributor);
         }
+        Console.WriteLine();
         
         foreach (var check in _checks)
         {
-            Console.WriteLine(check);
+            var str = check.ToString();
+            var list = str.Split("\n");
+
+            if (list.Length > 10 && !DoNotTruncateOutput)
+            {
+                Console.WriteLine(string.Join("\n", list.Take(10)));
+                Console.WriteLine("...");
+                Console.WriteLine(list.Last());
+            }
+            else
+            {
+                Console.WriteLine(str);
+            }
+            
+            // Print a newline between checks, unless it's the last check
+            if (check != _checks.Last())
+            {
+                Console.WriteLine();
+            }
         }
+        Console.WriteLine(dashes);
     }
 }
