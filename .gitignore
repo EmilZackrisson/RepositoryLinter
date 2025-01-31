@@ -5,3 +5,7 @@ riderModule.iml
 /_ReSharper.Caches/
 .idea/.idea.RepositoryLinter/.idea
 RepositoryLinter.sln.DotSettings.user
+RepoLinterTests/.DS_Store
+RepoLinterTests/TestRepos/.DS_Store
+RepositoryLinter/.DS_Store
+.DS_Store
