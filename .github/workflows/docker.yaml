@@ -34,4 +34,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: emilzackrisson/repositorylinter:latest
+          tags: ghcr.io/emilzackrisson/repositorylinter:latest
