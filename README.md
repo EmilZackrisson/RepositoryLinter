@@ -1,3 +1,5 @@
+[![Unit tests](https://github.com/EmilZackrisson/RepositoryLinter/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/EmilZackrisson/RepositoryLinter/actions/workflows/unit-tests.yml)
+
 # RepositoryLinter
 
 This is a very simple Git repository linter for an Software Development Project course.
