@@ -126,7 +126,7 @@ batchCommand.SetHandler((repos, disableTruncate, disableCleanup) =>
         {
             var git = new Git(line)
             {
-                SaveToDisk = !disableCleanup
+                SaveToDisk = true
             };
             Run(git, disableTruncate: disableTruncate);
         }

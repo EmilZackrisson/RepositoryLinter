@@ -6,11 +6,8 @@ namespace RepoLinterTests;
 
 public class CheckerTests : IDisposable
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public CheckerTests(ITestOutputHelper testOutputHelper)
+    public CheckerTests()
     {
-        _testOutputHelper = testOutputHelper;
         CreateFakeRepoWhereAllChecksPass();
     }
     
