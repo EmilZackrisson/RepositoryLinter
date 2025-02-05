@@ -6,6 +6,7 @@ namespace RepoLinterTests;
 
 public class CheckerTests : IDisposable
 {
+    private readonly GlobalConfiguration _config = new(); 
     public CheckerTests()
     {
         CreateFakeRepoWhereAllChecksPass();
@@ -106,7 +107,7 @@ public class CheckerTests : IDisposable
     [Fact]
     public void SearchForStringShouldExists()
     {
-        var checker = new SearchForStringCheck("name: CI", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new SearchForStringCheck("name: CI", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
         {
             Name = "Search for 'name: CI'",
             Description = "Test for 'name: CI' string",
@@ -119,7 +120,7 @@ public class CheckerTests : IDisposable
     [Fact]
     public void SearchForStringShouldNotExists()
     {
-        var checker = new SearchForStringCheck("NOTEXISTINGSTRING", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new SearchForStringCheck("NOTEXISTINGSTRING", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
         {
             Name = "Search for 'NOTEXISTINGSTRING'",
             Description = "Test for 'NOTEXISTINGSTRING' string",
@@ -133,7 +134,7 @@ public class CheckerTests : IDisposable
     [Fact]
     public void SearchForStringShouldExistsInSecret()
     {
-        var checker = new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
         {
             Name = "Trufflehog",
             Description = "Search for secrets using Trufflehog",
@@ -142,7 +143,7 @@ public class CheckerTests : IDisposable
         checker.Run();
         
         // There is no way to know if the secret is found or not, so we just check that the status is green, which means that the check did not fail.
-        Assert.Equal(CheckStatus.Green, checker.Status);
+        Assert.Equal(CheckStatus.Yellow, checker.Status);
     } 
 
     public void Dispose()

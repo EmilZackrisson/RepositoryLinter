@@ -1,4 +1,6 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using RepositoryLinter;
 using RepositoryLinter.Checks;
 
@@ -13,6 +15,8 @@ var disableCleanupOption = new Option<bool>("--disable-cleanup", "Do not delete 
 rootCommand.AddGlobalOption(disableCleanupOption);
 var disableTruncateOption = new Option<bool>("--disable-truncate", "Do not truncate the output. By default, the output is truncated to 10 lines per check.");
 rootCommand.AddGlobalOption(disableTruncateOption);
+var ignoreGitIgnoreOption = new Option<bool>("--ignore-gitignore", "Ignore .gitignore. Includes all files in the search.");
+rootCommand.AddGlobalOption(ignoreGitIgnoreOption);
 
 // Url command
 var urlCommand = new Command("url", "Run lint on a URL");
@@ -34,6 +38,24 @@ var batchFileArgument = new Argument<FileInfo>("file", "File with a list of repo
 batchCommand.AddArgument(batchFileArgument);
 rootCommand.AddCommand(batchCommand);
 
+// Create global config
+var config = new GlobalConfiguration();
+
+var commandLineBuilder = new CommandLineBuilder(rootCommand);
+commandLineBuilder.AddMiddleware(async (context, next) =>
+{
+    var tokens = context.ParseResult.Tokens;
+    var args = tokens.Select(t => t.Value).ToArray();
+    
+    // Set global options
+    config.Verbose = args.Contains("--verbose");
+    config.GitIgnoreEnabled = !args.Contains("--ignore-gitignore");
+    config.TruncateOutput = !args.Contains("--disable-truncate");
+    config.CleanUp = !args.Contains("--disable-cleanup");
+
+    await next(context);
+});
+
 // Validate URL argument
 urlArgument.AddValidator((url) =>
 {
@@ -44,22 +66,19 @@ urlArgument.AddValidator((url) =>
 });
 
 // Set handler for URL command
-urlCommand.SetHandler((url, disableCleanup, pathToSave, disableTruncate) =>
+urlCommand.SetHandler((url, pathToSave) =>
 {
     Console.WriteLine($"Linting URL: {url}");
-    
-    var pathToSaveTo = pathToSave ?? "/tmp/repolinter/git";
-    
-    var git = new Git(new Uri(url), pathToSaveTo)
-    {
-        SaveToDisk = !disableCleanup
-    };
+
+    config.PathToSaveGitRepos = pathToSave ?? config.PathToSaveGitRepos;
+
+    var git = new Git(new Uri(url), config);
     git.Clone();
     
     // Run linting pipeline
-    Run(git, disableTruncate);
+    Run(git);
     
-}, urlArgument, disableCleanupOption, pathToSaveOption, disableTruncateOption);
+}, urlArgument, pathToSaveOption);
 
 
 // Validate path argument
@@ -93,20 +112,17 @@ batchFileArgument.AddValidator((repo) =>
 });
 
 // Set handler for path command
-pathCommand.SetHandler((path, disableTruncate) =>
+pathCommand.SetHandler((path) =>
 {
     Console.WriteLine($"Linting path: {path}");
-    var git = new Git(path)
-    {
-        SaveToDisk = true
-    };
+    var git = new Git(path);
 
-    Run(git, disableTruncate: disableTruncate);
+    Run(git);
 
-}, pathArgument, disableTruncateOption);
+}, pathArgument);
 
 // Set handler for batch command
-batchCommand.SetHandler((repos, disableTruncate, disableCleanup) =>
+batchCommand.SetHandler((repos) =>
 {
     Console.WriteLine($"Linting batch file: {repos}");
     var lines = File.ReadAllLines(repos.FullName);
@@ -115,12 +131,9 @@ batchCommand.SetHandler((repos, disableTruncate, disableCleanup) =>
         var isUrl = Uri.TryCreate(line, UriKind.Absolute, out _);
         if (isUrl)
         {
-            var git = new Git(new Uri(line), "/tmp/repolinter/git")
-            {
-                SaveToDisk = !disableCleanup
-            };
+            var git = new Git(new Uri(line), config);
             git.Clone();
-            Run(git, disableTruncate: disableTruncate);
+            Run(git);
         }
         else
         {
@@ -128,20 +141,21 @@ batchCommand.SetHandler((repos, disableTruncate, disableCleanup) =>
             {
                 SaveToDisk = true
             };
-            Run(git, disableTruncate: disableTruncate);
+            Run(git);
         }
     }
-}, batchFileArgument, disableTruncateOption, disableCleanupOption);
+}, batchFileArgument);
 
-return await rootCommand.InvokeAsync(args);
+//return await rootCommand.InvokeAsync(args);
 
-void Run(Git git, bool disableTruncate = false)
+commandLineBuilder.UseDefaults();
+var parser = commandLineBuilder.Build();
+await parser.InvokeAsync(args);
+
+void Run(Git git)
 {
     // Run linting pipeline
-    var linter = new Linter(git)
-    {
-        DoNotTruncateOutput = disableTruncate
-    };
+    var linter = new Linter(git, config);
     
     linter.AddCheck(new FileExistsCheck("README.md", git.PathToGitDirectory)
     {
@@ -165,7 +179,7 @@ void Run(Git git, bool disableTruncate = false)
         StatusWhenFailed = CheckStatus.Yellow
     });
     
-    linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory)
+    linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
     {
         Name = "Test string exists",
         Description = "Check if the string 'test' exists in the repository",
@@ -174,7 +188,7 @@ void Run(Git git, bool disableTruncate = false)
         InvertResult = true
     }); 
     
-    linter.AddCheck(new SecretsCheck(git.PathToGitDirectory)
+    linter.AddCheck(new SecretsCheck(git.PathToGitDirectory, config)
     {
         Name = "Secrets check",
         Description = "Check if the repository contains any secrets",

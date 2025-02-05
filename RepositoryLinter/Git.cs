@@ -15,15 +15,15 @@ public class Git
     /// Creates a new Git object with a URL
     /// </summary>
     /// <param name="url">Url to a Git repository</param>
-    /// <param name="parentDirectory">File system path to a directory to where the repository is to be cloned</param>
-    public Git(Uri url, string parentDirectory = "/tmp/repolinter/git")
+    /// <param name="config">A GlobalConfiguration object</param>
+    public Git(Uri url, GlobalConfiguration config)
     {
-        if (!Directory.Exists(parentDirectory))
+        if (!Directory.Exists(config.PathToSaveGitRepos))
         {
-            Directory.CreateDirectory(parentDirectory);
+            Directory.CreateDirectory(config.PathToSaveGitRepos);
         }
            
-        ParentDirectory = parentDirectory;
+        ParentDirectory = config.PathToSaveGitRepos;
         _url = url;
         RepositoryName = Path.GetFileName(_url.LocalPath);
         PathToGitDirectory = Path.Join(ParentDirectory, RepositoryName);

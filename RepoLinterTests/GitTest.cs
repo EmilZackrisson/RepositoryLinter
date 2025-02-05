@@ -8,6 +8,7 @@ public class GitTest : IDisposable
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _path;
+    private readonly GlobalConfiguration _config = new();
     
     public GitTest(ITestOutputHelper testOutputHelper)
     {
@@ -16,11 +17,12 @@ public class GitTest : IDisposable
         InitFakeRepo();
     }
 
-    
-
     private void InitFakeRepo()
     {
         Directory.CreateDirectory(_path);
+        
+        // Create a .gitingore file and add a file to ignore
+        File.WriteAllText(Path.Join(_path, ".gitignore"), "ignored.txt");
         
         var inited = RunGitCommand(_path, "init");
         if (!inited)
@@ -77,7 +79,7 @@ public class GitTest : IDisposable
     [Fact]
     public void CloneGitRepository()
     {
-        Git git = new Git(new Uri("https://github.com/EmilZackrisson/TraefikAPI"));
+        var git = new Git(new Uri("https://github.com/EmilZackrisson/TraefikAPI"), _config);
         git.Clone();
         var directory = Path.Join(git.ParentDirectory, git.RepositoryName);
         _testOutputHelper.WriteLine("Git repository cloned to: " + directory);
@@ -118,6 +120,24 @@ public class GitTest : IDisposable
         Git git = new Git(_path);
         var contributors = git.GetContributors();
         Assert.Contains("Test <test@example.com>", contributors);
+    }
+
+    [Fact]
+    public void IgnoreFile()
+    {
+        var ignore = new GitIgnore(_path);
+        var pathToIgnoredFile = Path.Join(_path, "ignored.txt");
+        var ignored = ignore.IsIgnored(pathToIgnoredFile);
+        Assert.True(ignored);
+    }
+    
+    [Fact]
+    public void ShouldNotIgnoreFile()
+    {
+        var ignore = new GitIgnore(_path);
+        var pathToNotIgnoredFile = Path.Join(_path, "README.md");
+        var ignored = ignore.IsIgnored(pathToNotIgnoredFile);
+        Assert.False(ignored);
     }
 
     public void Dispose()
