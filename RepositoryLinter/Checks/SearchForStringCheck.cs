@@ -12,10 +12,11 @@ public class SearchForStringCheck(string searchString, string gitRepoPath) : Che
     public override void Run()
     {
         var files = Directory.EnumerateFiles(gitRepoPath, "*.*", SearchOption.AllDirectories);
+        var gitIgnore = new GitIgnore(gitRepoPath);
 
         foreach (var file in files)
         {
-            if (File.ReadAllText(file).Contains(searchString))
+            if (File.ReadAllText(file).Contains(searchString) && !gitIgnore.IsIgnored(file))
             {
                 _files.Add(file);
             }

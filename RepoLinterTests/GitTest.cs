@@ -28,8 +28,8 @@ public class GitTest : IDisposable
             throw new Exception("Failed to init git repository");
         }
 
-        var x = RunGitCommand(_path, "config --global user.email \"test@example.com\"");
-        var y = RunGitCommand(_path, "config --global user.name \"Test\"");
+        var x = RunGitCommand(_path, "config --local user.email \"test@example.com\"");
+        var y = RunGitCommand(_path, "config --local user.name \"Test\"");
         
         if (!x || !y)
         {
