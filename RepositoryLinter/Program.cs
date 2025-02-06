@@ -9,8 +9,6 @@ using RepositoryLinter.Checks;
 var rootCommand = new RootCommand("Simple CLI tool to lint git repositories");
 
 // Global options
-var verboseOption = new Option<bool>("--verbose", "Show verbose output");
-rootCommand.AddGlobalOption(verboseOption);
 var disableCleanupOption = new Option<bool>("--disable-cleanup", "Do not delete the cloned git repository");
 rootCommand.AddGlobalOption(disableCleanupOption);
 var disableTruncateOption = new Option<bool>("--disable-truncate", "Do not truncate the output. By default, the output is truncated to 10 lines per check.");
@@ -48,13 +46,15 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
     var args = tokens.Select(t => t.Value).ToArray();
     
     // Set global options
-    config.Verbose = args.Contains("--verbose");
     config.GitIgnoreEnabled = !args.Contains("--ignore-gitignore");
     config.TruncateOutput = !args.Contains("--disable-truncate");
     config.CleanUp = !args.Contains("--disable-cleanup");
 
     await next(context);
 });
+
+// Create Lint Runner
+var runner = new LintRunner(config);
 
 // Validate URL argument
 urlArgument.AddValidator((url) =>
@@ -72,12 +72,20 @@ urlCommand.SetHandler((url, pathToSave) =>
 
     config.PathToSaveGitRepos = pathToSave ?? config.PathToSaveGitRepos;
 
-    var git = new Git(new Uri(url), config);
-    git.Clone();
-    
-    // Run linting pipeline
-    Run(git);
-    
+    try
+    {
+        var git = new Git(new Uri(url), config);
+        git.Clone();
+        
+        // Run linting pipeline
+        runner.Run(git);
+    }
+    catch (Exception e)
+    {
+        Console.Error.WriteLine($"Failed to lint: {url}");
+        Console.Error.WriteLine(e.Message);
+        Environment.Exit(1);
+    }
 }, urlArgument, pathToSaveOption);
 
 
@@ -115,10 +123,17 @@ batchFileArgument.AddValidator((repo) =>
 pathCommand.SetHandler((path) =>
 {
     Console.WriteLine($"Linting path: {path}");
-    var git = new Git(path);
 
-    Run(git);
-
+    try
+    {
+        var git = new Git(path);
+        runner.Run(git);
+    }
+    catch (Exception e)
+    {
+        Console.Error.WriteLine($"Failed to lint: {path}", e);
+        Environment.Exit(1);
+    }
 }, pathArgument);
 
 // Set handler for batch command
@@ -131,71 +146,39 @@ batchCommand.SetHandler((repos) =>
         var isUrl = Uri.TryCreate(line, UriKind.Absolute, out _);
         if (isUrl)
         {
-            var git = new Git(new Uri(line), config);
-            git.Clone();
-            Run(git);
+            // Run linter on URL
+            try
+            {
+                var git = new Git(new Uri(line), config);
+                git.Clone();
+                runner.Run(git);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Failed to lint: {line}", e);
+            }
         }
         else
         {
-            var git = new Git(line)
+            try
             {
-                SaveToDisk = true
-            };
-            Run(git);
+                // Run linter on local path
+                var git = new Git(line)
+                {
+                    SaveToDisk = true
+                };
+                runner.Run(git);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Failed to lint: {line}", e);
+            }
+           
         }
     }
 }, batchFileArgument);
 
-//return await rootCommand.InvokeAsync(args);
 
 commandLineBuilder.UseDefaults();
 var parser = commandLineBuilder.Build();
 await parser.InvokeAsync(args);
-
-void Run(Git git)
-{
-    // Run linting pipeline
-    var linter = new Linter(git, config);
-    
-    linter.AddCheck(new FileExistsCheck("README.md", git.PathToGitDirectory)
-    {
-        Name = "README.md exists",
-        Description = "Check if README.md exists",
-        TipToFix = "Create a README.md file.",
-    });
-    
-    linter.AddCheck(new FileExistsCheck("LICENCE.*", git.PathToGitDirectory)
-    {
-        Name = "LICENCE file does not exist",
-        Description = "Check if LICENCE exists",
-        TipToFix = "Create a LICENCE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
-    });
-    
-    linter.AddCheck(new DirectoryExistsCheck(".github/workflows", git.PathToGitDirectory)
-    {
-        Name = "GitHub Workflow directory exists",
-        Description = "Check if GitHub Workflow directory exists",
-        TipToFix = "Create a GitHub Workflow directory. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
-        StatusWhenFailed = CheckStatus.Yellow
-    });
-    
-    linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
-    {
-        Name = "Test string exists",
-        Description = "Check if the string 'test' exists in the repository",
-        TipToFix = "Remove the string 'test' from the repository",
-        StatusWhenFailed = CheckStatus.Red,
-        InvertResult = true
-    }); 
-    
-    linter.AddCheck(new SecretsCheck(git.PathToGitDirectory, config)
-    {
-        Name = "Secrets check",
-        Description = "Check if the repository contains any secrets",
-        TipToFix = "Remove the secrets found",
-        StatusWhenFailed = CheckStatus.Red
-    });
-    
-    linter.Run();
-    linter.PrintResults();
-}

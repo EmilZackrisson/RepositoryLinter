@@ -6,21 +6,29 @@ public class GitIgnore
     
     public GitIgnore(string pathToGitRepo, bool enabled = true)
     {
-        if (!enabled)
+        var gitignore = Path.Join(pathToGitRepo, ".gitignore");
+        if (!enabled || !File.Exists(gitignore))
         {
-            Console.WriteLine("GitIgnore is disabled.");
             return;
         }
-        var gitignore = Path.Join(pathToGitRepo, ".gitignore");
         
         var lines = File.ReadAllLines(gitignore);
-            
+        
+        // Filter out comments and empty lines
+        lines = lines.Where(x => !x.StartsWith('#') && !string.IsNullOrWhiteSpace(x)).ToArray();
+        
+        // Add the lines to the ignore object
         foreach (var line in lines)
         {
             _ignore.Add(line);
         }
     }
     
+    /// <summary>
+    /// Check if a file is ignored by the .gitignore file. If gitignore is disabled, this will always return false.
+    /// </summary>
+    /// <param name="file">Filepath to check</param>
+    /// <returns>True if ignored, false otherwise or if gitignore is disabled</returns>
     public bool IsIgnored(string file)
     {
         var ignored = _ignore.IsIgnored(file);

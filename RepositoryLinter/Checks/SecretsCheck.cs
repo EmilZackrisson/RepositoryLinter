@@ -116,7 +116,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
             
             _fileHasBeenIgnored = true;
             ignoredFiles.Add(secret);
-            _additionalInfo = "Secrets found in files that are ignored by .gitignore. If you want to check these files, disable the .gitignore check.";
+            _additionalInfo = "Secrets found in files that are ignored by .gitignore, and thus not being commited. Be cautious. If you want to search in these files, run the program with the --ignore-gitignore flag.";
         }
         
         // Remove ignored files from the list

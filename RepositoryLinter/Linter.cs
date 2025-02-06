@@ -5,7 +5,6 @@ namespace RepositoryLinter;
 public class Linter(Git git, GlobalConfiguration config)
 {
     private readonly List<Checker> _checks = [];
-    private readonly bool _doNotTruncateOutput = config.TruncateOutput;
 
     /// <summary>
     /// Add a check to the linter.
@@ -52,7 +51,7 @@ public class Linter(Git git, GlobalConfiguration config)
             var str = check.ToString();
             var list = str.Split("\n");
 
-            if (list.Length > 10 && !_doNotTruncateOutput)
+            if (list.Length > 10 && config.TruncateOutput)
             {
                 Console.WriteLine(string.Join("\n", list.Take(10)));
                 Console.WriteLine("...");

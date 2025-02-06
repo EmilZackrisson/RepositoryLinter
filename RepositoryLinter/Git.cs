@@ -65,6 +65,10 @@ public class Git
         Directory.Delete(PathToGitDirectory, true);
     }
 
+    /// <summary>
+    /// Clones the Git repository to the specified directory.
+    /// </summary>
+    /// <exception cref="Exception">Thrown when the git clone process fails to start or the clone operation fails.</exception>
     public void Clone()
     {
         // Check if the repository already exists, if so, delete it
@@ -94,6 +98,11 @@ public class Git
         }
         
         p.WaitForExit();
+        
+        if (p.ExitCode != 0)
+        {
+            throw new Exception("Failed to clone git repository");
+        }
     }
     
     public int GetCommitCount()

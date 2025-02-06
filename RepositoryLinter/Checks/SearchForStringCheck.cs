@@ -19,7 +19,7 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
         {
             if (gitIgnore.IsIgnored(file))
             {
-                _additionalInfo = "Found string in files that are ignored by .gitignore. If you want to search in these files, disable the .gitignore check.";
+                _additionalInfo = "Found string in files that are ignored by .gitignore. If you want to search in these files, run the program with the --ignore-gitignore flag.";
                 continue;
             }
             
