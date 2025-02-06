@@ -49,6 +49,11 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
 
     public override string ToString()
     {
+        if (Status == CheckStatus.Green)
+        {
+            return base.ToString();
+        }
+        
         return base.ToString() + $"\nSearch string: {searchString} found in following files:\n{string.Join("\n", _files)}\n{_additionalInfo}";
     }
 }

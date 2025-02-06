@@ -18,7 +18,7 @@ public class LintRunner(GlobalConfiguration config)
     
         linter.AddCheck(new FileExistsCheck("LICENSE.*", git.PathToGitDirectory)
         {
-            Name = "LICENSE file does not exist",
+            Name = "LICENSE file does exist",
             Description = "Check if LICENSE exists",
             TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
         });
@@ -33,7 +33,7 @@ public class LintRunner(GlobalConfiguration config)
     
         linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
         {
-            Name = "Test string exists",
+            Name = "Test string does not exists",
             Description = "Check if the string 'test' exists in the repository",
             TipToFix = "Remove the string 'test' from the repository",
             StatusWhenFailed = CheckStatus.Red,

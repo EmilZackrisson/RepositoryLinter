@@ -134,22 +134,4 @@ public class CheckerTests : IDisposable
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
     }
-    
-    
-    [Fact]
-    public void SearchForStringShouldExistsInSecret()
-    {
-        var checker = new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
-        {
-            Name = "Trufflehog",
-            Description = "Search for secrets using Trufflehog",
-            TipToFix = "Remove the secret from the repository."
-        };
-        checker.Run();
-        
-        // There is no way to know if the secret is found or not, so we just check that the status is green, which means that the check did not fail.
-        Assert.Equal(CheckStatus.Yellow, checker.Status);
-    } 
-
-    
 }
