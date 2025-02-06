@@ -173,7 +173,6 @@ batchCommand.SetHandler((repos) =>
             {
                 Console.Error.WriteLine($"Failed to lint: {line}", e);
             }
-           
         }
     }
 }, batchFileArgument);

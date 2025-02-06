@@ -24,10 +24,10 @@ public class CheckerTests : IDisposable
         File.WriteAllText(Path.Join(path, "README.md"), "# Hello World");
         
         // Create a LICENSE file
-        File.WriteAllText(Path.Join(path, "LICENSE"), "MIT License");
+        File.WriteAllText(Path.Join(path, "LICENSE"), "MIT LICENSE");
         
         // Create a LICENSE.md file
-        File.WriteAllText(Path.Join(path, "LICENSE.md"), "MIT License");
+        File.WriteAllText(Path.Join(path, "LICENSE.md"), "MIT LICENSE");
         
         // Create a GitHub Workflows directory
         Directory.CreateDirectory(Path.Join(path, ".github/workflows"));
@@ -37,6 +37,11 @@ public class CheckerTests : IDisposable
         // Create a fake secret somewhere
         Directory.CreateDirectory(Path.Join(path, "secrets"));
         File.WriteAllText(Path.Join(path, "secrets/secret.txt"), "45f68f4c-930d-4648-88c3-3a6e260da304");
+    }
+    
+    public void Dispose()
+    {
+        Directory.Delete(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), true);
     }
 
     [Fact]
@@ -55,10 +60,10 @@ public class CheckerTests : IDisposable
     [Fact]
     public void FileShouldExistsWildcard()
     {
-        var checker = new FileExistsCheck("LICENSE.md", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("LICENSE.*", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
         {
-            Name = "LICENCE Wildcard",
-            Description = "Testing for LICENCE.*",
+            Name = "LICENSE Wildcard",
+            Description = "Testing for LICENSE.*",
             TipToFix = ""
         };
         checker.Run();
@@ -146,8 +151,5 @@ public class CheckerTests : IDisposable
         Assert.Equal(CheckStatus.Yellow, checker.Status);
     } 
 
-    public void Dispose()
-    {
-        Directory.Delete(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), true);
-    }
+    
 }

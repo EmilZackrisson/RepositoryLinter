@@ -16,11 +16,11 @@ public class LintRunner(GlobalConfiguration config)
             TipToFix = "Create a README.md file.",
         });
     
-        linter.AddCheck(new FileExistsCheck("LICENCE.*", git.PathToGitDirectory)
+        linter.AddCheck(new FileExistsCheck("LICENSE.*", git.PathToGitDirectory)
         {
-            Name = "LICENCE file does not exist",
-            Description = "Check if LICENCE exists",
-            TipToFix = "Create a LICENCE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
+            Name = "LICENSE file does not exist",
+            Description = "Check if LICENSE exists",
+            TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
         });
     
         linter.AddCheck(new DirectoryExistsCheck(".github/workflows", git.PathToGitDirectory)
