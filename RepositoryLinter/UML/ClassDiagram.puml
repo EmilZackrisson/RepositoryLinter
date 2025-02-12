@@ -1,0 +1,73 @@
+@startuml RepositoryLinter/UML/classes
+title RepositoryLinter Classes
+
+class RepositoryLinter
+
+class Linter {
+    - _checks: List<Checker>
+
+    +AddCheck(check: Checker): void
+    +Run(): void
+    +PrintResults(): void   
+}
+
+class LintRunner {
+    +Run(): void
+}
+
+abstract class Checker {
+    + Name: string
+    + Description: string
+    + TipToFix: string
+    + Status: CheckStatus
+    + StatusWhenFailed: CheckStatus
+    +Run(): void = 0
+}
+
+class CheckStatus {
+    + Name: string
+    + Description: string
+}
+
+enum CheckStatus {
+    Green
+    Yellow
+    Red
+    Gray
+}
+
+class Git {
+    + ParentDirectory: string
+    + SaveToDisk: bool
+    + RepositoryName: string
+    + PathToGitDirectory: string
+    - _url: string
+    
+    - DeleteGitDirectory(): void
+    + Clone(): void
+    + GetCommitCount(): int
+    + GetContributors(): List<string>
+}
+
+GitIgnore : +IsIgnored(): bool 
+
+
+RepositoryLinter -- LintRunner
+RepositoryLinter -- Git
+LintRunner -- Linter
+Checker -- CheckStatus
+Linter -- Checker
+Checker <|-- DirectoryExistsCheck
+Checker <|-- FileExistsCheck
+Checker <|-- SearchForStringCheck
+Checker <|-- SecretsCheck
+
+GitIgnore -- SecretsCheck
+GitIgnore -- SearchForStringCheck
+
+CheckStatusExtensions : +ToIcon(CheckStatus status) : string
+CheckStatusExtensions -- CheckStatus
+Checker -- CheckStatusExtensions
+
+
+@enduml
