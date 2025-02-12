@@ -1,4 +1,4 @@
-@startuml RepositoryLinter/UML/classes
+@startuml Class Diagram
 title RepositoryLinter Classes
 
 class RepositoryLinter
