@@ -51,11 +51,11 @@ public class Linter(Git git, GlobalConfiguration config)
             var str = check.ToString();
             var list = str.Split("\n");
 
-            if (list.Length > 10 && config.TruncateOutput)
+            if (list.Length > 13 && config.TruncateOutput)
             {
                 Console.WriteLine(string.Join("\n", list.Take(10)));
                 Console.WriteLine("...");
-                Console.WriteLine(list.Last());
+                Console.WriteLine(string.Join("\n", list.TakeLast(3)));
             }
             else
             {

@@ -1,0 +1,59 @@
+using System.CommandLine.Parsing;
+
+namespace RepositoryLinter.Handlers;
+
+public class BatchCommandHandler(LintRunner runner, GlobalConfiguration config)
+{
+    public Task Handle(FileInfo repos)
+    {
+        Console.WriteLine($"Linting batch file: {repos}");
+        var lines = File.ReadAllLines(repos.FullName);
+        
+        // Filter out empty lines and comments
+        lines = lines.Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#")).ToArray();
+        
+        foreach (var line in lines)
+        {
+            try
+            {
+                var isUrl = Uri.TryCreate(line, UriKind.Absolute, out _);
+                if (isUrl)
+                {
+                    var urlHandler = new UrlCommandHandler(runner, config);
+                    urlHandler.Handle(line, null);
+                }
+                else
+                {
+                    var pathHandler = new PathCommandHandler(runner, config);
+                    pathHandler.Handle(line);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+            }
+        }
+        
+        return Task.CompletedTask;
+    }
+    
+    public static void Validate(ArgumentResult repo)
+    {
+        var file = repo.Tokens[0].Value;
+        if (!File.Exists(file))
+        {
+            repo.ErrorMessage = $"File does not exist: {file}";
+        }
+        else
+        {
+            var lines = File.ReadAllLines(file);
+            foreach (var line in lines)
+            {
+                var isUrl = Uri.TryCreate(line, UriKind.Absolute, out _);
+                if (isUrl || Directory.Exists(line)) continue;
+                repo.ErrorMessage = $"Invalid path or URL: {line}";
+                break;
+            }
+        }
+    }
+}

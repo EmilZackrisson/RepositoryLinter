@@ -59,6 +59,6 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
             return base.ToString();
         }
         
-        return base.ToString() + $"\nSearch string: {searchString} found in following files:\n{string.Join("\n", _files)}\n{_additionalInfo}";
+        return base.ToString() + $"\nSearch string: {searchString} found in following files:\n{string.Join("\n", _files)}\nTotal number of files: {_files.Count}\n{_additionalInfo}";
     }
 }

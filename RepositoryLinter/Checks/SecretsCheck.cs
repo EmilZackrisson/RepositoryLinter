@@ -60,6 +60,9 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
             output += formatted + "\n";
         }
         
+        // Number of secrets found
+        output += $"Total number of secrets found: {_foundSecretsJson.Count}\n";
+        
         if (_fileHasBeenIgnored)
         {
             output += _additionalInfo;
