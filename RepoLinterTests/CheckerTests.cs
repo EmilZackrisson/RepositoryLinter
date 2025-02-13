@@ -67,6 +67,19 @@ public class CheckerTests : IDisposable
             TipToFix = ""
         };
         checker.Run();
+        Assert.Equal(CheckStatus.Yellow, checker.Status); // Yellow because there are multiple files matching the wildcard
+    }
+    
+    [Fact]
+    public void FileShouldNotBeEmpty()
+    {
+        var checker = new FileExistsCheck("LICENSE.md", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        {
+            Name = "LICENSE Not Empty",
+            Description = "Testing for LICENSE.md to not be empty",
+            TipToFix = ""
+        };
+        checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
     

@@ -20,6 +20,7 @@ public class LintRunner(GlobalConfiguration config)
         {
             Name = "LICENSE file does exist",
             Description = "Check if LICENSE exists",
+            StatusWhenEmpty = CheckStatus.Yellow,
             TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
         });
     

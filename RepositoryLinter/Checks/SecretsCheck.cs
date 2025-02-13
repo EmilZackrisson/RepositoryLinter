@@ -5,9 +5,9 @@ namespace RepositoryLinter.Checks;
 
 public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Checker
 {
-    private List<dynamic> _foundSecretsJson = [];
+    private readonly List<dynamic> _foundSecretsJson = [];
     private readonly GitIgnore _gitIgnore = new(pathToGitRepo, config.GitIgnoreEnabled);
-    private bool _fileHasBeenIgnored = false;
+    private bool _fileHasBeenIgnored;
     private string _additionalInfo = "";
     public override void Run()
     {
@@ -22,6 +22,12 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         
         if (Status == CheckStatus.Green)
         {
+            return output;
+        }
+        
+        if (Status == CheckStatus.Yellow)
+        {
+            output += "\n" + _additionalInfo;
             return output;
         }
         
@@ -125,8 +131,9 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
             _foundSecretsJson.Remove(ignoredFile);
         }
 
-        if (_foundSecretsJson.Count == 0) return;
-        
+        if (_foundSecretsJson.Count != 0) return;
         Status = CheckStatus.Yellow;
+        
+        return;
     }
 }

@@ -17,12 +17,6 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
 
         foreach (var file in files)
         {
-            if (gitIgnore.IsIgnored(file))
-            {
-                _additionalInfo = "Found string in files that are ignored by .gitignore. If you want to search in these files, run the program with the --ignore-gitignore flag.";
-                continue;
-            }
-            
             // Read the file in chunks to avoid reading the entire file into memory
             const int chunkSize = 1024;
             using var fileReader = File.OpenText(file);
@@ -33,6 +27,12 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
                 var chunk = new string(buffer, 0, bytesRead);
                 
                 if (!chunk.Contains(searchString)) continue;
+                
+                if (gitIgnore.IsIgnored(file))
+                {
+                    _additionalInfo = "Found string in files that are ignored by .gitignore. If you want to search in these files, run the program with the --ignore-gitignore flag.";
+                    break;
+                }
                 
                 _files.Add(file);
                 break;
