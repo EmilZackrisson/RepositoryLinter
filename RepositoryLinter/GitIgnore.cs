@@ -4,6 +4,11 @@ public class GitIgnore
 {
     private readonly Ignore.Ignore _ignore = new();
     
+    /// <summary>
+    /// GitIgnore constructor. If gitignore is disabled, this will not read the .gitignore file.
+    /// </summary>
+    /// <param name="pathToGitRepo">Path to a Git repository.</param>
+    /// <param name="enabled">When enabled, the .gitignore file is read and parsed.</param>
     public GitIgnore(string pathToGitRepo, bool enabled = true)
     {
         var gitignore = Path.Join(pathToGitRepo, ".gitignore");

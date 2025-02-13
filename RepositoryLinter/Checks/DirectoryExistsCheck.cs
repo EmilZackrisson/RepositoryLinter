@@ -7,6 +7,9 @@ namespace RepositoryLinter.Checks;
 /// <param name="pathToGitDirectory">Path to the local copy of the Git repository.</param>
 public class DirectoryExistsCheck(string relativeDirectoryPath, string pathToGitDirectory) : Checker
 {
+    /// <summary>
+    /// Status to return when the directory is empty. Default is Green.
+    /// </summary>
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Green;
     public override void Run()
     {

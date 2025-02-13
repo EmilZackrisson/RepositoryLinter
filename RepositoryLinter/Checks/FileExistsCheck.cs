@@ -8,6 +8,10 @@ namespace RepositoryLinter.Checks;
 public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory) : Checker
 {
     private bool _isEmpty;
+    
+    /// <summary>
+    /// Status to return when the file is empty, aka 0 bytes. Default is Green.
+    /// </summary>
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Green;
     private string _additionalInfo;
     public override void Run()

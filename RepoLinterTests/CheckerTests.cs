@@ -14,6 +14,7 @@ public class CheckerTests : IDisposable
     
     private void CreateFakeRepoWhereAllChecksPass()
     {
+        // Create a fake repository where all checks pass
         var path = Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass");
         Directory.CreateDirectory(path);
         
@@ -28,6 +29,9 @@ public class CheckerTests : IDisposable
         
         // Create a LICENSE.md file
         File.WriteAllText(Path.Join(path, "LICENSE.md"), "MIT LICENSE");
+        
+        // Create a LICENSE_Empty file
+        File.WriteAllText(Path.Join(path, "LICENSE_Empty"), "");
         
         // Create a GitHub Workflows directory
         Directory.CreateDirectory(Path.Join(path, ".github/workflows"));
@@ -81,6 +85,20 @@ public class CheckerTests : IDisposable
         };
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
+    }
+    
+    [Fact]
+    public void FileShouldBeEmpty()
+    {
+        var checker = new FileExistsCheck("LICENSE_Empty", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        {
+            Name = "LICENSE Empty",
+            Description = "Testing for LICENSE to be empty",
+            TipToFix = "",
+            StatusWhenEmpty = CheckStatus.Yellow
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Yellow, checker.Status);
     }
     
     [Fact]

@@ -7,8 +7,13 @@ namespace RepositoryLinter.Checks;
 /// <param name="gitRepoPath">Path to git repository</param>
 public class SearchForStringCheck(string searchString, string gitRepoPath, GlobalConfiguration config) : Checker
 {
-    public bool InvertResult { get; init; } = false;
+    /// <summary>
+    /// Invert the result of the check. Default is false.
+    /// </summary>
+    public bool InvertResult { get; init; }
+    
     private readonly List<string> _files = [];
+    
     private string _additionalInfo = "";
     public override void Run()
     {

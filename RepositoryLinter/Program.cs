@@ -53,7 +53,7 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
     await next(context);
 });
 
-// Create Lint Runner
+// Create Lint Pipeline Runner
 var runner = new LintRunner(config);
 
 // Validate URL argument

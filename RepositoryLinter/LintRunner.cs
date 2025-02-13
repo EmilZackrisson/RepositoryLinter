@@ -4,6 +4,10 @@ namespace RepositoryLinter;
 
 public class LintRunner(GlobalConfiguration config)
 {
+    /// <summary>
+    /// Run the linting pipeline
+    /// </summary>
+    /// <param name="git">Git object to run linting pipeline on</param>
     public void Run(Git git)
     {
         // Run linting pipeline

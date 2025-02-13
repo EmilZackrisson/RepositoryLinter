@@ -5,9 +5,24 @@ namespace RepositoryLinter.Checks;
 
 public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Checker
 {
+    /// <summary>
+    /// List of secrets found by trufflehog in JSON format.
+    /// </summary>
     private readonly List<dynamic> _foundSecretsJson = [];
+    
+    /// <summary>
+    /// GitIgnore object to check if files are ignored by .gitignore.
+    /// </summary>
     private readonly GitIgnore _gitIgnore = new(pathToGitRepo, config.GitIgnoreEnabled);
+    
+    /// <summary>
+    /// Additional information about the check. This is set if secrets are found in files that are ignored by .gitignore.
+    /// </summary>
     private bool _fileHasBeenIgnored;
+    
+    /// <summary>
+    /// Additional information about the check. This is set if secrets are found in files that are ignored by .gitignore.
+    /// </summary>
     private string _additionalInfo = "";
     public override void Run()
     {
@@ -53,6 +68,11 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         return output;
     }
 
+    /// <summary>
+    /// Converts a trufflehog JSON object to a string. Returns null if the JSON object is invalid.
+    /// </summary>
+    /// <param name="json">JSON secrets found line from Trufflehog</param>
+    /// <returns>A string in the format {filename} line {line_nr} - {description_of_secret}</returns>
     private string? TrufflehogJsonToString(dynamic json)
     {
         try
@@ -67,6 +87,11 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         }
     }
 
+    /// <summary>
+    /// Run the trufflehog command with the given command. The output is stored in the _foundSecretsJson list. Status is set to Red if the command returns 183, which means secrets were found.
+    /// </summary>
+    /// <param name="command">Command</param>
+    /// <exception cref="Exception">Throws if trufflehog command couldn't start</exception>
     private void RunTrufflehogCommand(string command)
     {
         var parentDirectory = Path.GetDirectoryName(pathToGitRepo)!;
@@ -84,9 +109,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
                 CreateNoWindow = true
             }
         };
-        
         var started = p.Start();
-        
         if (!started)
         {
             throw new Exception("Failed to start trufflehog command");
@@ -95,8 +118,8 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         // Read the output from the command
         var output = p.StandardOutput.ReadToEnd();
         
+        // Split the output into lines and parse the JSON
         var lines = output.Split("\n");
-
         foreach (var line in lines)
         {
             var json = JsonConvert.DeserializeObject<dynamic>(line);
@@ -108,18 +131,20 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         
         p.WaitForExit();
 
+        // If the exit code is 183, secrets were found
         if (p.ExitCode != 183) return;
         
         Status = CheckStatus.Red;
     }
     
+    /// <summary>
+    /// Removes secrets found from _foundSecretsJson if the file is ignored by .gitignore. Status is set to Yellow if all secrets are found in ignored files.
+    /// </summary>
     private void RemoveIgnoredFiles()
     {
         var ignoredFiles = new List<dynamic>();
-        foreach (var secret in _foundSecretsJson)
+        foreach (var secret in _foundSecretsJson.Where(secret => _gitIgnore.IsIgnored(secret.SourceMetadata.Data.Filesystem.file.ToString())))
         {
-            if (!_gitIgnore.IsIgnored(secret.SourceMetadata.Data.Filesystem.file.ToString())) continue;
-            
             _fileHasBeenIgnored = true;
             ignoredFiles.Add(secret);
             _additionalInfo = "Secrets found in files that are ignored by .gitignore, and thus not being commited. Be cautious. If you want to search in these files, run the program with the --ignore-gitignore flag.";
@@ -133,7 +158,5 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
 
         if (_foundSecretsJson.Count != 0) return;
         Status = CheckStatus.Yellow;
-        
-        return;
     }
 }

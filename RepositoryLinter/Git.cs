@@ -29,6 +29,12 @@ public class Git
         PathToGitDirectory = Path.Join(ParentDirectory, RepositoryName);
     }
 
+    /// <summary>
+    /// Creates a new Git object with a local path
+    /// </summary>
+    /// <param name="localPath">A local path to a Git repository</param>
+    /// <exception cref="DirectoryNotFoundException">Throws if the specified directory does not exist.</exception>
+    /// <exception cref="Exception">Throws if the specified directory is not a Git repository.</exception>
     public Git(string localPath)
     {
         if (!Directory.Exists(localPath))
@@ -105,6 +111,11 @@ public class Git
         }
     }
     
+    /// <summary>
+    /// Gets the commit count of the Git repository.
+    /// </summary>
+    /// <returns>The number of commits in the repository.</returns>
+    /// <exception cref="Exception">Thrown when the git rev-list process fails to start.</exception>
     public int GetCommitCount()
     {
         var p = new Process
