@@ -69,7 +69,7 @@ urlArgument.AddValidator(UrlCommandHandler.Validate);
 urlCommand.SetHandler((url, pathToSave) => urlCommandHandler.Handle(url, pathToSave), urlArgument, pathToSaveOption);
 
 // Create path command handler
-var pathCommandHandler = new PathCommandHandler(runner, config);
+var pathCommandHandler = new PathCommandHandler(runner);
 pathArgument.AddValidator(PathCommandHandler.Validate);
 pathCommand.SetHandler((path) => pathCommandHandler.Handle(path), pathArgument);
 

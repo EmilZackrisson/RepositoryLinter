@@ -2,7 +2,7 @@ using System.CommandLine.Parsing;
 
 namespace RepositoryLinter.Handlers;
 
-public class PathCommandHandler(LintRunner runner, GlobalConfiguration config)
+public class PathCommandHandler(LintRunner runner)
 {
     public Task Handle(string path)
     {

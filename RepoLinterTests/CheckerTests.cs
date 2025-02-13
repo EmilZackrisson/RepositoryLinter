@@ -41,6 +41,9 @@ public class CheckerTests : IDisposable
         // Create a fake secret somewhere
         Directory.CreateDirectory(Path.Join(path, "secrets"));
         File.WriteAllText(Path.Join(path, "secrets/secret.txt"), "45f68f4c-930d-4648-88c3-3a6e260da304");
+        
+        // Create a directory without any secrets
+        Directory.CreateDirectory(Path.Join(path, "no-secrets"));
     }
     
     public void Dispose()
@@ -164,5 +167,18 @@ public class CheckerTests : IDisposable
         };
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
+    }
+    
+    [Fact]
+    public void SecretsShouldNotExists()
+    {
+        var checker = new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass", "no-secrets"), _config)
+        {
+            Name = "Secrets",
+            Description = "Test for secrets",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Green, checker.Status);
     }
 }

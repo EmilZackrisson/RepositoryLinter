@@ -159,7 +159,16 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
             _foundSecretsJson.Remove(ignoredFile);
         }
 
-        if (_foundSecretsJson.Count != 0) return;
-        Status = CheckStatus.Yellow;
+        // If all secrets are found in ignored files, set status to yellow
+        if (_foundSecretsJson.Count == 0 && _fileHasBeenIgnored)
+        {
+            Status = CheckStatus.Yellow;
+        }
+        
+        // If some secrets are found in ignored files, set status to red
+        if (_foundSecretsJson.Count != 0)
+        {
+            Status = CheckStatus.Red;
+        }
     }
 }

@@ -13,11 +13,11 @@ public class LintRunner(GlobalConfiguration config)
         // Run linting pipeline
         var linter = new Linter(git, config);
     
-        linter.AddCheck(new FileExistsCheck("README.md", git.PathToGitDirectory)
+        linter.AddCheck(new FileExistsCheck("README.*", git.PathToGitDirectory)
         {
-            Name = "README.md exists",
-            Description = "Check if README.md exists",
-            TipToFix = "Create a README.md file.",
+            Name = "README exists",
+            Description = "Check if README exists",
+            TipToFix = "Create a README file.",
         });
     
         linter.AddCheck(new FileExistsCheck("LICENSE.*", git.PathToGitDirectory)

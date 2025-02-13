@@ -24,7 +24,7 @@ public class BatchCommandHandler(LintRunner runner, GlobalConfiguration config)
                 }
                 else
                 {
-                    var pathHandler = new PathCommandHandler(runner, config);
+                    var pathHandler = new PathCommandHandler(runner);
                     pathHandler.Handle(line);
                 }
             }
