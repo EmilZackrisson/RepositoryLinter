@@ -15,23 +15,35 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Green;
     private string? _additionalInfo;
     
-    // TODO: Add support for recursive search
-    public bool RecursiveSearch { get; init; } = false;
+    /// <summary>
+    /// Recursively search for the file in the directory. Default is false.
+    /// </summary>
+    public bool RecursiveSearch { get; init; }
     
     public override void Run()
     {
         var fileName = Path.GetFileName(relativeFilePath);
         var directory = Path.GetDirectoryName(relativeFilePath);
 
-        var files = Directory.EnumerateFiles(Path.Join(pathToGitDirectory, directory), fileName,
-            SearchOption.TopDirectoryOnly).ToList();
+        List<string> files;
+        
+        if (RecursiveSearch)
+        {
+            files = Directory.EnumerateFiles(Path.Join(pathToGitDirectory, directory), fileName,
+                SearchOption.AllDirectories).ToList();
+        }
+        else
+        {
+            files = Directory.EnumerateFiles(Path.Join(pathToGitDirectory, directory), fileName,
+                SearchOption.TopDirectoryOnly).ToList();
+        }
         
         var exists = files.Count != 0;
         
         if (files.Count > 1)
         {
             Status = CheckStatus.Yellow;
-            _additionalInfo = $"Multiple files matching {fileName} found in the directory {directory}.";
+            _additionalInfo = $"\nMultiple files matching {fileName} found in the directory {directory}.";
             return;
         }
         

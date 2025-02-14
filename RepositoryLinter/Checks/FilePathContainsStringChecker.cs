@@ -11,11 +11,13 @@ public class FilePathContainsStringChecker(string stringToFind, string pathToGit
         {
             var found = path.Contains(stringToFind);
 
-            if (!found) continue;
-            
-            _foundPaths.Add(path);
-            Status = CheckStatus.Red;
+            if (found)
+            {
+                _foundPaths.Add(path);
+            }
         }
+        
+        Status = _foundPaths.Count == 0 ? CheckStatus.Green : CheckStatus.Red;
     }
 
     private IEnumerable<string> GetAllFilePaths()

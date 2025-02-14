@@ -1,4 +1,5 @@
 using System.CommandLine.Parsing;
+using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter.Handlers;
 
@@ -12,6 +13,10 @@ public class PathCommandHandler(LintRunner runner)
         {
             var git = new Git(path);
             runner.Run(git);
+        }
+        catch (CheckFailedException)
+        {
+            Environment.Exit(100);
         }
         catch (Exception e)
         {

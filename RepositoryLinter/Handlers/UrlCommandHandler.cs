@@ -1,4 +1,5 @@
 using System.CommandLine.Parsing;
+using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter.Handlers;
 
@@ -14,9 +15,13 @@ public class UrlCommandHandler(LintRunner runner, GlobalConfiguration config)
         {
             var git = new Git(new Uri(url), config);
             git.Clone();
-        
+
             // Run linting pipeline
             var code = runner.Run(git);
+        }
+        catch (CheckFailedException)
+        {
+            Environment.Exit(100);
         }
         catch (Exception e)
         {

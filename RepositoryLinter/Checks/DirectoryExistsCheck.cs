@@ -11,21 +11,35 @@ public class DirectoryExistsCheck(string relativeDirectoryPath, string pathToGit
     /// Status to return when the directory is empty. Default is Green.
     /// </summary>
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Green;
+    private string _additionalInfo = string.Empty;
     public override void Run()
     {
-        var exists = Directory.Exists(Path.Join(pathToGitDirectory,relativeDirectoryPath));
+        var path = Path.Join(pathToGitDirectory, relativeDirectoryPath);
+        var exists = Directory.Exists(path);
 
         if (exists)
         {
-            var empty = Directory.GetFiles(Path.Join(pathToGitDirectory, relativeDirectoryPath)).Length != 0;
+            var empty = Directory.EnumerateFiles(path).ToList().Count == 0;
             
             if (empty)
             {
                 Status = StatusWhenEmpty;
+                _additionalInfo = $"Directory {relativeDirectoryPath} is empty.";
                 return;
             }
         }
         
         Status = exists ? CheckStatus.Green : StatusWhenFailed;
+    }
+
+    public override string ToString()
+    {
+        var b = base.ToString();
+        if (_additionalInfo != string.Empty)
+        {
+            b += $"\n{_additionalInfo}";
+        }
+        
+        return b;
     }
 }

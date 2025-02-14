@@ -33,6 +33,10 @@ public class CheckerTests : IDisposable
         // Create a LICENSE_Empty file
         File.WriteAllText(Path.Join(path, "LICENSE_Empty"), "");
         
+        // Create a LICENSE directory with a LICENSE file
+        Directory.CreateDirectory(Path.Join(path, "license_dir"));
+        File.WriteAllText(Path.Join(path, "license_dir/LICENSE.indir"), "MIT LICENSE");
+        
         // Create a GitHub Workflows directory
         Directory.CreateDirectory(Path.Join(path, ".github/workflows"));
         // Create a GitHub Workflows file
@@ -44,6 +48,8 @@ public class CheckerTests : IDisposable
         
         // Create a directory without any secrets
         Directory.CreateDirectory(Path.Join(path, "no-secrets"));
+        
+        Directory.CreateDirectory(Path.Join(path, "thisisalongdirectorynamethatisnotrandomandshouldbefound"));
     }
     
     public void Dispose()
@@ -182,5 +188,54 @@ public class CheckerTests : IDisposable
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
     
-    // TODO: Add test for FilePathContainsStringChecker
+    [Fact]
+    public void LicenseFileCheckerShouldExists()
+    {
+        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        {
+            Name = "License File Checker",
+            Description = "Test for LICENSE file",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Green, checker.Status);
+    }
+    
+    [Fact]
+    public void LicenseFileInDirectoryCheckerShouldExists()
+    {
+        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        {
+            Name = "License File In Directory Checker",
+            Description = "Test for LICENSE file in LICENSE directory",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Green, checker.Status);
+    }
+    
+    [Fact]
+    public void FilePathContainsStringCheckerShouldExists()
+    {
+        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
+        {
+            Name = "File Path Contains String",
+            Description = "Test for file path containing long string",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Green, checker.Status);
+    }
+    [Fact]
+    public void FilePathContainsStringCheckerShouldNotExists()
+    {
+        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
+        {
+            Name = "File Path Contains String",
+            Description = "Test for file path containing long string",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Green, checker.Status);
+    }
 }

@@ -1,4 +1,5 @@
 using RepositoryLinter.Checks;
+using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter;
 
@@ -26,16 +27,24 @@ public class LintRunner(GlobalConfiguration config)
             Name = "README exists",
             Description = "Check if README exists",
             TipToFix = "Create a README file.",
+            StatusWhenEmpty = CheckStatus.Yellow
         });
     
         linter.AddCheck(new FileExistsCheck("LICENSE.*", git.PathToGitDirectory)
         {
             Name = "LICENSE file does exist",
             Description = "Check if LICENSE exists",
-            StatusWhenEmpty = CheckStatus.Yellow,
+            StatusWhenEmpty = CheckStatus.Red,
             TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
         });
     
+        linter.AddCheck(new LicenseFileChecker(git.PathToGitDirectory)
+        {
+            Name = "License File Checker",
+            Description = "Check if a LICENSE file exists in the repository.",
+            TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
+        });
+        
         linter.AddCheck(new DirectoryExistsCheck(".github/workflows", git.PathToGitDirectory)
         {
             Name = "GitHub Workflow directory exists",
@@ -72,6 +81,11 @@ public class LintRunner(GlobalConfiguration config)
     
         linter.Run();
         linter.PrintResults();
+
+        if (linter.StatusCode() != 0)
+        {
+            throw new CheckFailedException("One or more checks failed. Please fix the issues and try again.");
+        }
 
         return linter.StatusCode();
     }
