@@ -27,6 +27,15 @@ public class Linter(Git git, GlobalConfiguration config)
     }
     
     /// <summary>
+    /// Get the status code of the linter. Returns 1 if any check has a red status, otherwise 0.
+    /// </summary>
+    /// <returns></returns>
+    public int StatusCode()
+    {
+        return _checks.Any(check => check.Status == CheckStatus.Red) ? 1 : 0;
+    }
+    
+    /// <summary>
     /// Prints a report of the results of the checks.
     /// </summary>
     public void PrintResults()

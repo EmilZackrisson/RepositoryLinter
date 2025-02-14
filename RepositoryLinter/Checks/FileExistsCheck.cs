@@ -3,7 +3,7 @@ namespace RepositoryLinter.Checks;
 /// <summary>
 /// Check if a file exists in the repository
 /// </summary>
-/// <param name="relativeFilePath">Relative file path from the Git repository. Supports wildcards.</param>
+/// <param name="relativeFilePath">Relative file path from the Git repository. Supports wildcards. Not case-sensitive.</param>
 /// <param name="pathToGitDirectory">Path to the local copy of the Git repository.</param>
 public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory) : Checker
 {
@@ -14,6 +14,10 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
     /// </summary>
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Green;
     private string? _additionalInfo;
+    
+    // TODO: Add support for recursive search
+    public bool RecursiveSearch { get; init; } = false;
+    
     public override void Run()
     {
         var fileName = Path.GetFileName(relativeFilePath);
@@ -38,7 +42,7 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
         
         if (exists && _isEmpty)
         {
-            _additionalInfo = $"File {fileName} is empty.";
+            _additionalInfo += $"File {fileName} is empty.";
             Status = StatusWhenEmpty;
             return;
         }
@@ -58,8 +62,8 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
             return true;
         }
     }
-    
-    public bool FilesAreEmpty(List<string> files)
+
+    private static bool FilesAreEmpty(List<string> files)
     {
         return files.All(FileIsEmpty);
     }

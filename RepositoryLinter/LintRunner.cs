@@ -7,11 +7,19 @@ public class LintRunner(GlobalConfiguration config)
     /// <summary>
     /// Run the linting pipeline
     /// </summary>
+    /// <returns>0 if all checks passes, 1 otherwise</returns>
     /// <param name="git">Git object to run linting pipeline on</param>
-    public void Run(Git git)
+    public int Run(Git git)
     {
         // Run linting pipeline
         var linter = new Linter(git, config);
+        
+        linter.AddCheck(new FileExistsCheck(".gitignore", git.PathToGitDirectory)
+        {
+            Name = ".gitignore exists",
+            Description = "Check if .gitignore exists",
+            TipToFix = "Create a .gitignore file. Read more about .gitignore files at https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files"
+        });
     
         linter.AddCheck(new FileExistsCheck("README.*", git.PathToGitDirectory)
         {
@@ -33,7 +41,8 @@ public class LintRunner(GlobalConfiguration config)
             Name = "GitHub Workflow directory exists",
             Description = "Check if GitHub Workflow directory exists",
             TipToFix = "Create a GitHub Workflow directory. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
-            StatusWhenFailed = CheckStatus.Yellow
+            StatusWhenFailed = CheckStatus.Red,
+            StatusWhenEmpty = CheckStatus.Yellow
         });
     
         linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
@@ -52,8 +61,18 @@ public class LintRunner(GlobalConfiguration config)
             TipToFix = "Remove the secrets found",
             StatusWhenFailed = CheckStatus.Red
         });
+        
+        linter.AddCheck(new FilePathContainsStringChecker("test", git.PathToGitDirectory, config)
+        {
+            Name = "File path contains string",
+            Description = "Check if the file path contains the string 'test'",
+            TipToFix = "Remove the string 'test' from the file path",
+            StatusWhenFailed = CheckStatus.Red
+        });
     
         linter.Run();
         linter.PrintResults();
+
+        return linter.StatusCode();
     }
 }

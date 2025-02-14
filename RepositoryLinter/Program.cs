@@ -2,9 +2,7 @@
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using RepositoryLinter;
-using RepositoryLinter.Checks;
 using RepositoryLinter.Handlers;
-using RepositoryLinter.Middlewares;
 
 // Root command
 var rootCommand = new RootCommand("Simple CLI tool to lint git repositories");
@@ -32,7 +30,7 @@ pathCommand.AddArgument(pathArgument);
 rootCommand.AddCommand(pathCommand);
 
 // Batch file command
-var batchCommand = new Command("file", "Run lint on multiple repositories");
+var batchCommand = new Command("batch", "Run lint on multiple repositories");
 var batchFileArgument = new Argument<FileInfo>("file", "File with a list of repositories to lint. Each line should be a URL or a path to a local repository.");
 batchCommand.AddArgument(batchFileArgument);
 rootCommand.AddCommand(batchCommand);
@@ -41,7 +39,7 @@ rootCommand.AddCommand(batchCommand);
 var config = new GlobalConfiguration();
 
 var commandLineBuilder = new CommandLineBuilder(rootCommand);
-/*
+
 commandLineBuilder.AddMiddleware(async (context, next) =>
 {
     var tokens = context.ParseResult.Tokens;
@@ -53,12 +51,13 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
     config.CleanUp = !args.Contains("--disable-cleanup");
 
     await next(context);
-}); */
+});
 
+/* // TODO: Implement middleware in own class
 var commandLineBuilderMiddleware = new CommandLineBuilderMiddleware(config);
 commandLineBuilder.AddMiddleware(async (context, next) =>
     await commandLineBuilderMiddleware.GetOptionsIntoGlobalConfiguration(context, next));
-
+*/
 
 // Create Lint Pipeline Runner
 var runner = new LintRunner(config);
@@ -77,7 +76,6 @@ pathCommand.SetHandler((path) => pathCommandHandler.Handle(path), pathArgument);
 var batchCommandHandler = new BatchCommandHandler(runner, config);
 batchFileArgument.AddValidator(BatchCommandHandler.Validate);
 batchCommand.SetHandler((repos) => batchCommandHandler.Handle(repos), batchFileArgument);
-
 
 commandLineBuilder.UseDefaults();
 var parser = commandLineBuilder.Build();

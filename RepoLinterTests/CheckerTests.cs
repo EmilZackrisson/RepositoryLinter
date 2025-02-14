@@ -181,4 +181,6 @@ public class CheckerTests : IDisposable
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
+    
+    // TODO: Add test for FilePathContainsStringChecker
 }

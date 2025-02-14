@@ -27,6 +27,12 @@ public class BatchCommandHandler(LintRunner runner, GlobalConfiguration config)
                     var pathHandler = new PathCommandHandler(runner);
                     pathHandler.Handle(line);
                 }
+                
+                // Print a line of = to separate each lint if not the last one
+                if (line != lines.Last())
+                {
+                    Console.WriteLine(new string('=', Console.WindowWidth));
+                }
             }
             catch (Exception e)
             {
