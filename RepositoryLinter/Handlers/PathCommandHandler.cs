@@ -7,6 +7,7 @@ public class PathCommandHandler(LintRunner runner)
 {
     public Task Handle(string path)
     {
+        path = path.TrimEnd('/');
         Console.WriteLine($"Linting path: {path}");
 
         try

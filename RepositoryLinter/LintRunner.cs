@@ -30,6 +30,7 @@ public class LintRunner(GlobalConfiguration config)
             StatusWhenEmpty = CheckStatus.Yellow
         });
     
+        // TODO: Remove this check after testing the LicenseFileChecker
         linter.AddCheck(new FileExistsCheck("LICENSE.*", git.PathToGitDirectory)
         {
             Name = "LICENSE file does exist",

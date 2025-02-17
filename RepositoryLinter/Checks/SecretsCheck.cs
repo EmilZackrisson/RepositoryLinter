@@ -27,7 +27,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     public override void Run()
     {
         var directory = Path.GetFileName(pathToGitRepo);
-        RunTrufflehogCommand($"filesystem {directory} --json --results=verified,unknown --fail");
+        RunTrufflehogCommand($"git {directory} --json --results=verified,unknown --fail");
         RemoveIgnoredFiles();
     }
     
