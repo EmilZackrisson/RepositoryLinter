@@ -52,6 +52,7 @@ public class CheckerTests : IDisposable
         // Create a directory without any license
         Directory.CreateDirectory(Path.Join(path, "no-license"));
         
+        // Create a directory with a long name that should be found
         Directory.CreateDirectory(Path.Join(path, "thisisalongdirectorynamethatisnotrandomandshouldbefound"));
     }
     
@@ -207,7 +208,7 @@ public class CheckerTests : IDisposable
     [Fact]
     public void LicenseFileCheckerShouldNotExists()
     {
-        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass/no-license"))
+        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass", "no-license"))
         {
             Name = "License File Checker",
             Description = "Test for LICENSE file",
