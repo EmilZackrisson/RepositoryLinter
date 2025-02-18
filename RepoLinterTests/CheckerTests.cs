@@ -24,18 +24,18 @@ public class CheckerTests : IDisposable
         // Create a README.md file
         File.WriteAllText(Path.Join(path, "README.md"), "# Hello World");
         
+        // Create a README.txt file
+        File.WriteAllText(Path.Join(path, "README.txt"), "Hello World");
+        
         // Create a LICENSE file
         File.WriteAllText(Path.Join(path, "LICENSE"), "MIT LICENSE");
         
-        // Create a LICENSE.md file
-        File.WriteAllText(Path.Join(path, "LICENSE.md"), "MIT LICENSE");
-        
         // Create a LICENSE_Empty file
-        File.WriteAllText(Path.Join(path, "LICENSE_Empty"), "");
+        File.WriteAllText(Path.Join(path, "EMPTY_LICENSE"), "");
         
         // Create a LICENSE directory with a LICENSE file
-        Directory.CreateDirectory(Path.Join(path, "license_dir"));
-        File.WriteAllText(Path.Join(path, "license_dir/LICENSE.indir"), "MIT LICENSE");
+        //Directory.CreateDirectory(Path.Join(path, "license_dir"));
+        //File.WriteAllText(Path.Join(path, "license_dir/LICENSE.indir"), "MIT LICENSE");
         
         // Create a GitHub Workflows directory
         Directory.CreateDirectory(Path.Join(path, ".github/workflows"));
@@ -77,10 +77,10 @@ public class CheckerTests : IDisposable
     [Fact]
     public void FileShouldExistsWildcard()
     {
-        var checker = new FileExistsCheck("LICENSE.*", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("README.*", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
         {
-            Name = "LICENSE Wildcard",
-            Description = "Testing for LICENSE.*",
+            Name = "README Wildcard",
+            Description = "Testing for README.*",
             TipToFix = ""
         };
         checker.Run();
@@ -90,10 +90,10 @@ public class CheckerTests : IDisposable
     [Fact]
     public void FileShouldNotBeEmpty()
     {
-        var checker = new FileExistsCheck("LICENSE.md", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("README.md", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
         {
-            Name = "LICENSE Not Empty",
-            Description = "Testing for LICENSE.md to not be empty",
+            Name = "README Not Empty",
+            Description = "Testing for README.md to not be empty",
             TipToFix = ""
         };
         checker.Run();
@@ -103,7 +103,7 @@ public class CheckerTests : IDisposable
     [Fact]
     public void FileShouldBeEmpty()
     {
-        var checker = new FileExistsCheck("LICENSE_Empty", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("EMPTY_LICENSE", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
         {
             Name = "LICENSE Empty",
             Description = "Testing for LICENSE to be empty",
@@ -203,6 +203,25 @@ public class CheckerTests : IDisposable
         };
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
+    }
+
+    [Fact]
+    public void LicenceFileCheckerMultipleFiles()
+    {
+        var path = Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass");
+        File.WriteAllText(Path.Join(path, "LICENSE.md"), "MIT LICENSE");
+        
+        var checker = new LicenseFileChecker(path)
+        {
+            Name = "License File Checker",
+            Description = "Test for LICENSE file",
+            TipToFix = ""
+        };
+        
+        checker.Run();
+        Assert.Equal(CheckStatus.Yellow, checker.Status);
+        
+        File.Delete(Path.Join(path, "LICENSE.md"));
     }
     
     [Fact]

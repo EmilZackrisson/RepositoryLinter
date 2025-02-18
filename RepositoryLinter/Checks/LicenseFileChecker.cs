@@ -15,10 +15,27 @@ public class LicenseFileChecker : Checker
     {
         var licenseFiles = Directory.EnumerateFiles(_directory, "LICENSE*", SearchOption.TopDirectoryOnly).ToList();
 
-        if (licenseFiles.Count != 0 && !FilesAreEmpty(licenseFiles))
+        if (licenseFiles.Count == 1 && !FilesAreEmpty(licenseFiles))
         {
             // License file found and not empty
             Status = CheckStatus.Green;
+            return;
+        }
+        
+        if (licenseFiles.Count == 1 && FilesAreEmpty(licenseFiles))
+        {
+            // License file found but is empty
+            Status = StatusWhenEmpty;
+            _additionalInfo = "License file is empty.";
+            return;
+        }
+        
+        if (licenseFiles.Count > 1)
+        {
+            // Multiple license files found
+            Status = CheckStatus.Yellow;
+            _additionalInfo = "Multiple license files found.";
+            return;
         }
         
         // Check if there is a LICENSE directory that contains the license file
