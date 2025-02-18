@@ -19,9 +19,16 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
     {
         var files = Directory.EnumerateFiles(gitRepoPath, "*.*", SearchOption.AllDirectories);
         var gitIgnore = new GitIgnore(gitRepoPath, config.GitIgnoreEnabled);
+        var hasIgnoredFiles = false;
 
         foreach (var file in files)
         {
+            var fileIsIgnored = gitIgnore.IsIgnored(file);
+            if (fileIsIgnored && hasIgnoredFiles)
+            {
+                continue; // Skip files that are ignored by .gitignore if we have already found a file that is ignored.
+            }
+            
             // Read the file in chunks to avoid reading the entire file into memory
             const int chunkSize = 1024;
             using var fileReader = File.OpenText(file);
@@ -33,9 +40,10 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
                 
                 if (!chunk.Contains(searchString)) continue;
                 
-                if (gitIgnore.IsIgnored(file))
+                if (fileIsIgnored)
                 {
                     _additionalInfo = "Found string in files that are ignored by .gitignore. If you want to search in these files, run the program with the --ignore-gitignore flag.";
+                    hasIgnoredFiles = true;
                     break;
                 }
                 

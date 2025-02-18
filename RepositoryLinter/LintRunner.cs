@@ -30,18 +30,10 @@ public class LintRunner(GlobalConfiguration config)
             StatusWhenEmpty = CheckStatus.Yellow
         });
     
-        linter.AddCheck(new FileExistsCheck("LICENSE.*", git.PathToGitDirectory)
-        {
-            Name = "LICENSE file does exist",
-            Description = "Check if LICENSE exists",
-            StatusWhenEmpty = CheckStatus.Red,
-            TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
-        });
-    
         linter.AddCheck(new LicenseFileChecker(git.PathToGitDirectory)
         {
-            Name = "License File Checker",
-            Description = "Check if a LICENSE file exists in the repository.",
+            Name = "License Exists",
+            Description = "Check if a LICENSE exists in the repository.",
             TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
         });
         
