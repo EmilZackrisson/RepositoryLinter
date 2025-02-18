@@ -49,6 +49,9 @@ public class CheckerTests : IDisposable
         // Create a directory without any secrets
         Directory.CreateDirectory(Path.Join(path, "no-secrets"));
         
+        // Create a directory without any license
+        Directory.CreateDirectory(Path.Join(path, "no-license"));
+        
         Directory.CreateDirectory(Path.Join(path, "thisisalongdirectorynamethatisnotrandomandshouldbefound"));
     }
     
@@ -199,6 +202,19 @@ public class CheckerTests : IDisposable
         };
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
+    }
+    
+    [Fact]
+    public void LicenseFileCheckerShouldNotExists()
+    {
+        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass/no-license"))
+        {
+            Name = "License File Checker",
+            Description = "Test for LICENSE file",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(CheckStatus.Red, checker.Status);
     }
     
     [Fact]

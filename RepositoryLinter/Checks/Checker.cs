@@ -38,6 +38,6 @@ public abstract class Checker
     /// <returns>A nicely formatted string representation of the Checker</returns>
     public override string ToString()
     {
-        return Status == CheckStatus.Green ? $"{CheckStatusExtensions.ToIcon(Status)} {Name}" : $"{CheckStatusExtensions.ToIcon(Status)} {Name}\nDescription: {Description}\nTip to fix: {TipToFix}";
+        return Status == CheckStatus.Green ? $"{CheckStatusExtensions.ToIcon(Status)}   {Name}" : $"{CheckStatusExtensions.ToIcon(Status)}   {Name}\nDescription: {Description}\nTip to fix: {TipToFix}";
     }
 }

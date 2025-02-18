@@ -20,10 +20,9 @@ public class Linter(Git git, GlobalConfiguration config)
     /// </summary>
     public void Run()
     {
-        foreach (var check in _checks)
-        {
-            check.Run();
-        }
+        // Run tasks in parallel
+        var tasks = _checks.Select(check => Task.Run(check.Run));
+        Task.WaitAll(tasks.ToArray());
     }
     
     /// <summary>
