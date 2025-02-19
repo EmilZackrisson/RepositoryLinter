@@ -61,6 +61,8 @@ Checker <|-- DirectoryExistsCheck
 Checker <|-- FileExistsCheck
 Checker <|-- SearchForStringCheck
 Checker <|-- SecretsCheck
+Checker <|-- LicenseFileChecker
+Checker <|-- FilePathContainsStringChecker
 
 GitIgnore -- SecretsCheck
 GitIgnore -- SearchForStringCheck
