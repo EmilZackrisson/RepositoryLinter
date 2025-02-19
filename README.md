@@ -44,17 +44,17 @@ These guides use the Docker image, but the same commands can be used without Doc
 
 #### With Git URL
 ```bash
-docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest url https://github.com/EmilZackrisson/RepositoryLinter
+docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest https://github.com/EmilZackrisson/RepositoryLinter
 ```
 
 #### With local path
 ```bash
-docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest path /tmp/repolinter/RepositoryLinter
+docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest /tmp/repolinter/RepositoryLinter
 ```
 
 ### Run the linter on a batch of repositories
 ```bash
-docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest file /tmp/repolinter/batch.txt
+docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest /tmp/repolinter/batch.txt
 ```
 
 The batch file should contain a list of repositories, one per line. Can be URL or local path. Example:

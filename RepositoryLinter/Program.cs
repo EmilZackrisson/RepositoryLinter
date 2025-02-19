@@ -32,6 +32,7 @@ var config = new GlobalConfiguration();
 
 var commandLineBuilder = new CommandLineBuilder(rootCommand);
 
+// TODO: Move this to another file
 // Middleware to set global options
 commandLineBuilder.AddMiddleware(async (context, next) =>
 {
@@ -42,6 +43,12 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
     config.GitIgnoreEnabled = !args.Contains("--ignore-gitignore");
     config.TruncateOutput = !args.Contains("--disable-truncate");
     config.CleanUp = !args.Contains("--disable-cleanup");
+    
+    // Set path to save to
+    if (context.ParseResult.HasOption(pathToSaveOption))
+    {
+        config.PathToSaveGitRepos = context.ParseResult.GetValueForOption(pathToSaveOption)!;
+    }
 
     await next(context);
 });
