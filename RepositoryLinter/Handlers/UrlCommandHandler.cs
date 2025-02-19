@@ -15,9 +15,7 @@ public class UrlCommandHandler(LintRunner runner, GlobalConfiguration config)
         {
             var git = new Git(new Uri(url), config);
             git.Clone();
-
-            // Run linting pipeline
-            var code = runner.Run(git);
+            runner.Run(git);
         }
         catch (CheckFailedException)
         {

@@ -63,7 +63,7 @@ public class LicenseFileChecker : Checker
         }
     }
     
-    private bool FilesAreEmpty(List<string> files)
+    private static bool FilesAreEmpty(List<string> files)
     {
         return files.Any(file => new FileInfo(file).Length == 0);
     }

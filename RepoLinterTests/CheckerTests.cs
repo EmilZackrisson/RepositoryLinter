@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace RepoLinterTests;
 
-public class CheckerTests : IDisposable
+public class CheckerTests
 {
     private readonly GlobalConfiguration _config = new(); 
     public CheckerTests()
@@ -12,7 +12,7 @@ public class CheckerTests : IDisposable
         CreateFakeRepoWhereAllChecksPass();
     }
     
-    private void CreateFakeRepoWhereAllChecksPass()
+    private static void CreateFakeRepoWhereAllChecksPass()
     {
         // Create a fake repository where all checks pass
         var path = Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass");
@@ -33,10 +33,6 @@ public class CheckerTests : IDisposable
         // Create a LICENSE_Empty file
         File.WriteAllText(Path.Join(path, "EMPTY_LICENSE"), "");
         
-        // Create a LICENSE directory with a LICENSE file
-        //Directory.CreateDirectory(Path.Join(path, "license_dir"));
-        //File.WriteAllText(Path.Join(path, "license_dir/LICENSE.indir"), "MIT LICENSE");
-        
         // Create a GitHub Workflows directory
         Directory.CreateDirectory(Path.Join(path, ".github/workflows"));
         // Create a GitHub Workflows file
@@ -56,7 +52,7 @@ public class CheckerTests : IDisposable
         Directory.CreateDirectory(Path.Join(path, "thisisalongdirectorynamethatisnotrandomandshouldbefound"));
     }
     
-    public void Dispose()
+    ~CheckerTests()
     {
         Directory.Delete(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), true);
     }

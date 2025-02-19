@@ -71,7 +71,7 @@ public class Linter(Git git, GlobalConfiguration config)
             }
             
             // Print a newline between checks, unless it's the last check
-            if (check != _checks.Last())
+            if (check != _checks[^1])
             {
                 Console.WriteLine();
             }

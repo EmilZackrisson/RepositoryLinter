@@ -11,7 +11,7 @@ public class BatchCommandHandler(LintRunner runner, GlobalConfiguration config)
         var lines = File.ReadAllLines(repos.FullName);
         
         // Filter out empty lines and comments
-        lines = lines.Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("#")).ToArray();
+        lines = lines.Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith('#')).ToArray();
         
         var hasErrors = false;
         
@@ -32,7 +32,7 @@ public class BatchCommandHandler(LintRunner runner, GlobalConfiguration config)
                 }
 
                 // Print a line of = to separate each lint if not the last one
-                if (line != lines.Last())
+                if (line != lines[^1])
                 {
                     Console.WriteLine(new string('=', Console.WindowWidth));
                 }

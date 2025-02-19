@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Text;
 using Newtonsoft.Json;
+using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter.Checks;
 
@@ -33,20 +35,20 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     
     public override string ToString()
     {
-        var output = base.ToString();
+        var outputBuilder = new StringBuilder(base.ToString());
         
         if (Status == CheckStatus.Green)
         {
-            return output;
+            return outputBuilder.ToString();
         }
         
         if (Status == CheckStatus.Yellow)
         {
-            output += "\n" + _additionalInfo;
-            return output;
+            outputBuilder.Append("\n" + _additionalInfo);
+            return outputBuilder.ToString();
         }
         
-        output += "\nSecrets found:\n";
+        outputBuilder.Append("\nSecrets found:\n");
 
         foreach (var secret in _foundSecretsJson)
         {
@@ -57,18 +59,18 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
                 continue;
             }
             
-            output += formatted + "\n";
+            outputBuilder.Append(formatted + "\n");
         }
         
         // Number of secrets found
-        output += $"Total number of secrets found: {_foundSecretsJson.Count}\n";
+        outputBuilder.Append($"Total number of secrets found: {_foundSecretsJson.Count}\n");
         
         if (_fileHasBeenIgnored)
         {
-            output += _additionalInfo;
+            outputBuilder.Append(_additionalInfo);
         }
 
-        return output;
+        return outputBuilder.ToString();
     }
 
     /// <summary>
@@ -76,7 +78,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     /// </summary>
     /// <param name="json">JSON secrets found line from Trufflehog</param>
     /// <returns>A string in the format {filename} line {line_nr} - {description_of_secret}</returns>
-    private string? TrufflehogJsonToString(dynamic json)
+    private static string? TrufflehogJsonToString(dynamic json)
     {
         try
         {
@@ -115,7 +117,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         var started = p.Start();
         if (!started)
         {
-            throw new Exception("Failed to start trufflehog command");
+            throw new ProcessFailedToStartException("Failed to start trufflehog command");
         }
         
         // Read the output from the command

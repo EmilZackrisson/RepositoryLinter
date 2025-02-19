@@ -32,7 +32,6 @@ var config = new GlobalConfiguration();
 
 var commandLineBuilder = new CommandLineBuilder(rootCommand);
 
-// TODO: Move this to another file
 // Middleware to set global options
 commandLineBuilder.AddMiddleware(async (context, next) =>
 {

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter;
 
@@ -45,7 +46,7 @@ public class Git
         // Check if the path is a git repository
         if (!Directory.Exists(Path.Join(localPath, ".git")))
         {
-            throw new Exception("Path is not a git repository");
+            throw new GitException("Path is not a git repository");
         }
         
         // Split the path to get the directory and the repository name
@@ -100,14 +101,14 @@ public class Git
         var started = p.Start();
         if (!started)
         {
-            throw new Exception("Failed to start git clone");
+            throw new ProcessFailedToStartException("Failed to start git clone");
         }
         
         p.WaitForExit();
         
         if (p.ExitCode != 0)
         {
-            throw new Exception("Failed to clone git repository");
+            throw new GitException("Failed to clone git repository");
         }
     }
     
@@ -135,7 +136,7 @@ public class Git
         var started = p.Start();
         if (!started)
         {
-            throw new Exception("Failed to start git rev-list");
+            throw new GitException("Failed to start git rev-list");
         }
         
         var output = p.StandardOutput.ReadToEnd();
@@ -168,7 +169,7 @@ public class Git
         var started = p.Start();
         if (!started)
         {
-            throw new Exception("Failed to start git shortlog");
+            throw new GitException("Failed to start git shortlog");
         }
         
         var output = p.StandardOutput.ReadToEnd();

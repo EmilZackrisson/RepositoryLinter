@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace RepoLinterTests;
 
-public class GitTest : IDisposable
+public class GitTest
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _path;
@@ -40,15 +40,9 @@ public class GitTest : IDisposable
         
         // Create a commit
         File.WriteAllText(Path.Join(_path, "README.md"), "# Hello World");
-        var added = RunGitCommand(_path, "add .");
-        var branched = RunGitCommand(_path, "branch -m main");
-        var committed = RunGitCommand(_path, "commit -m Hello");
-        
-        /*
-        if (!added || !committed)
-        {
-            throw new Exception("Failed to create commit");
-        } */
+        RunGitCommand(_path, "add .");
+        RunGitCommand(_path, "branch -m main");
+        RunGitCommand(_path, "commit -m Hello");
     }
     
     private bool RunGitCommand(string path, string command)
@@ -140,7 +134,7 @@ public class GitTest : IDisposable
         Assert.False(ignored);
     }
 
-    public void Dispose()
+    ~GitTest()
     {
         Directory.Delete(Path.Join(Directory.GetCurrentDirectory(), "FakeGitRepoWhereAllChecksPass"), true);
     }
