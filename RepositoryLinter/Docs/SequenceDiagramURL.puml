@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor Developer
+
+participant "Repository Linter" as RL
+participant ":RootCommandHandler" as RCH
+participant ":UrlCommandHandler" as UCH
+participant ":Git" as G
+participant ":LintRunner" as LR
+participant ":Linter" as L
+participant "Checker" as C
+
+
+Developer -> RL: Start linter on URL
+RL -> LR: Create LintRunner
+RL <-- LR: runner
+RL -> RCH: Validate URL
+
+alt URL is valid
+    RL -> RCH : Handle(url)
+    RCH -> UCH: Handle(url)
+    UCH -> G : Clone(url)
+    UCH -> LR : Run(git)
+    LR -> L : Run()
+    
+    loop Loop over checks
+        L -> C : Run()
+    end
+    
+    LR -> L : PrintResults()
+    L --> Developer : Results
+else URL is invalid
+    RCH -> Developer: Invalid URL
+end
+
+@enduml

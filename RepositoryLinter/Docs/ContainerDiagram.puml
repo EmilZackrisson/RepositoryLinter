@@ -1,0 +1,21 @@
+@startuml SystemContextDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(personAlias, "Developer", "A person who wants to know if the repository is following best practices")
+
+Container(repositoryLinterSystem, "Repository Linter", "A program that checks a repository for best practices.")
+
+Rel(personAlias, repositoryLinterSystem, "Starts linter", "using the CLI with a URL or a local path as arguments")
+
+System_Ext(trufflehog, "Trufflehog", "A tool that searches through git repositories for secrets. Is installed on the system.")
+Rel(repositoryLinterSystem, trufflehog, "Uses to find secrets")
+
+System_Ext(external_services_secret, "External Services", "Services that the repository uses, like databases or APIs.")
+Rel(trufflehog, external_services_secret, "Accesses", "to test the found and identified secrets")
+
+System_Ext(git, "Git", "A version control system.")
+
+System_Ext(git_hoster, "Git Repository Hoster", "A service that hosts git repositories, like GitHub or GitLab.")
+Rel(repositoryLinterSystem, git, "Clone repository", "to run linter on")
+Rel(git, git_hoster, "Hosts", "the repository")
+@enduml
