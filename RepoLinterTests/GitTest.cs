@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using RepositoryLinter;
 using RepositoryLinter.Exceptions;
 using Xunit.Abstractions;
