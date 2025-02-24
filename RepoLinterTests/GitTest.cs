@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using RepositoryLinter;
+using RepositoryLinter.Exceptions;
 using Xunit.Abstractions;
 
 namespace RepoLinterTests;
@@ -97,7 +98,7 @@ public class GitTest
     public void CreateGitObjectWithLocalPathThatIsNotAGitRepository()
     {
         Directory.CreateDirectory("/tmp/repolinter/git/NotAGitRepository");
-        Assert.Throws<Exception>(() => new Git("/tmp/repolinter/git/NotAGitRepository"));
+        Assert.Throws<GitException>(() => new Git("/tmp/repolinter/git/NotAGitRepository"));
         Directory.Delete("/tmp/repolinter/git/NotAGitRepository");
     }
 
