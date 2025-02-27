@@ -249,7 +249,7 @@ public class CheckerTests
     [Fact]
     public void FilePathContainsStringCheckerShouldExists()
     {
-        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
+        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
         {
             Name = "File Path Contains String",
             Description = "Test for file path containing long string",
@@ -261,7 +261,7 @@ public class CheckerTests
     [Fact]
     public void FilePathContainsStringCheckerShouldNotExists()
     {
-        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
+        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
         {
             Name = "File Path Contains String",
             Description = "Test for file path containing long string",

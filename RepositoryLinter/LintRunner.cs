@@ -46,14 +46,14 @@ public class LintRunner(GlobalConfiguration config)
             StatusWhenEmpty = CheckStatus.Yellow
         });
     
-        linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
+        /*linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
         {
             Name = "Test string does not exists",
             Description = "Check if the string 'test' exists in the repository",
             TipToFix = "Remove the string 'test' from the repository",
             StatusWhenFailed = CheckStatus.Red,
             InvertResult = true
-        }); 
+        }); */
     
         linter.AddCheck(new SecretsCheck(git.PathToGitDirectory, config)
         {
@@ -63,7 +63,7 @@ public class LintRunner(GlobalConfiguration config)
             StatusWhenFailed = CheckStatus.Red
         });
         
-        linter.AddCheck(new FilePathContainsStringChecker("test", git.PathToGitDirectory, config)
+        linter.AddCheck(new FilePathContainsStringChecker("test", git.PathToGitDirectory)
         {
             Name = "File path contains string",
             Description = "Check if the file path contains the string 'test'",

@@ -1,6 +1,6 @@
 namespace RepositoryLinter.Checks;
 
-public class FilePathContainsStringChecker(string stringToFind, string pathToGitRepo, GlobalConfiguration config) : Checker
+public class FilePathContainsStringChecker(string stringToFind, string pathToGitRepo) : Checker
 {
     private readonly List<string> _foundPaths = [];
     public override void Run()
