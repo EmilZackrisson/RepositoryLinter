@@ -1,6 +1,5 @@
 ﻿using RepositoryLinter;
 using RepositoryLinter.Checks;
-using Xunit.Abstractions;
 
 namespace RepoLinterTests;
 
@@ -8,53 +7,54 @@ public class CheckerTests
 {
     private readonly GlobalConfiguration _config = new();
     private string _repoPath = "";
+
     public CheckerTests()
     {
         CreateFakeRepoWhereAllChecksPass();
     }
-    
+
     private void CreateFakeRepoWhereAllChecksPass()
     {
         // Create a fake repository where all checks pass
         _repoPath = Path.Join(Path.GetTempPath(), "FakeRepoWhereAllTestsPass");
         Directory.CreateDirectory(_repoPath);
-        
+
         // Create a .gitingore file
         File.WriteAllText(Path.Join(_repoPath, ".gitignore"), "node_modules");
-        
+
         // Create a README.md file
         File.WriteAllText(Path.Join(_repoPath, "README.md"), "# Hello World");
-        
+
         // Create a README.txt file
         File.WriteAllText(Path.Join(_repoPath, "README.txt"), "Hello World");
-        
+
         // Create a LICENSE file
         File.WriteAllText(Path.Join(_repoPath, "LICENSE"), "MIT LICENSE");
-        
+
         // Create a LICENSE_Empty file
         File.WriteAllText(Path.Join(_repoPath, "EMPTY_LICENSE"), "");
-        
+
         // Create a GitHub Workflows directory
         Directory.CreateDirectory(Path.Join(_repoPath, ".github/workflows"));
         // Create a GitHub Workflows file
         File.WriteAllText(Path.Join(_repoPath, ".github/workflows/main.yaml"), "name: CI");
-        
+
         // Create a fake secret somewhere
         Directory.CreateDirectory(Path.Join(_repoPath, "secrets"));
         File.WriteAllText(Path.Join(_repoPath, "secrets/secret.txt"), "45f68f4c-930d-4648-88c3-3a6e260da304");
-        
+
         // Create a directory without any secrets
         Directory.CreateDirectory(Path.Join(_repoPath, "no-secrets"));
-        
+
         // Create a directory without any license
         Directory.CreateDirectory(Path.Join(_repoPath, "no-license"));
-        
+
         // Create a directory with a long name that should be found
         var x = Path.Join(_repoPath, "thisisalongdirectorynamethatisnotrandomandshouldbefound");
         Directory.CreateDirectory(x);
         File.WriteAllText(Path.Join(x, "test"), "HELLO");
     }
-    
+
     ~CheckerTests()
     {
         Directory.Delete(_repoPath, true);
@@ -72,7 +72,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void FileShouldExistsWildcard()
     {
@@ -83,9 +83,10 @@ public class CheckerTests
             TipToFix = ""
         };
         checker.Run();
-        Assert.Equal(CheckStatus.Yellow, checker.Status); // Yellow because there are multiple files matching the wildcard
+        Assert.Equal(CheckStatus.Yellow,
+            checker.Status); // Yellow because there are multiple files matching the wildcard
     }
-    
+
     [Fact]
     public void FileShouldNotBeEmpty()
     {
@@ -98,7 +99,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void FileShouldBeEmpty()
     {
@@ -112,7 +113,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Yellow, checker.Status);
     }
-    
+
     [Fact]
     public void FileShouldNotExists()
     {
@@ -125,7 +126,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
     }
-    
+
     [Fact]
     public void DirectoryShouldExists()
     {
@@ -138,7 +139,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void DirectoryShouldNotExists()
     {
@@ -151,7 +152,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
     }
-    
+
     [Fact]
     public void SearchForStringShouldExists()
     {
@@ -164,7 +165,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void SearchForStringShouldNotExists()
     {
@@ -177,20 +178,22 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
     }
-    
+
     [Fact]
     public void SecretsShouldNotExists()
     {
-        var checker = new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass", "no-secrets"), _config)
-        {
-            Name = "Secrets",
-            Description = "Test for secrets",
-            TipToFix = ""
-        };
+        var checker =
+            new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass", "no-secrets"),
+                _config)
+            {
+                Name = "Secrets",
+                Description = "Test for secrets",
+                TipToFix = ""
+            };
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void LicenseFileCheckerShouldExists()
     {
@@ -208,24 +211,24 @@ public class CheckerTests
     public void LicenceFileCheckerMultipleFiles()
     {
         File.WriteAllText(Path.Join(_repoPath, "LICENSE.md"), "MIT LICENSE");
-        
+
         var checker = new LicenseFileChecker(_repoPath)
         {
             Name = "License File Checker",
             Description = "Test for LICENSE file",
             TipToFix = ""
         };
-        
+
         checker.Run();
         Assert.Equal(CheckStatus.Yellow, checker.Status);
-        
+
         File.Delete(Path.Join(_repoPath, "LICENSE.md"));
     }
-    
+
     [Fact]
     public void LicenseFileCheckerShouldNotExists()
     {
-        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass", "no-license"))
+        var checker = new LicenseFileChecker(Path.Join(_repoPath, "no-license"))
         {
             Name = "License File Checker",
             Description = "Test for LICENSE file",
@@ -234,7 +237,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Red, checker.Status);
     }
-    
+
     [Fact]
     public void LicenseFileInDirectoryCheckerShouldExists()
     {
@@ -247,29 +250,31 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void FilePathContainsStringCheckerShouldExists()
     {
-        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", _repoPath)
-        {
-            Name = "File Path Contains String",
-            Description = "Test for file _repoPath containing long string",
-            TipToFix = ""
-        };
+        var checker =
+            new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", _repoPath)
+            {
+                Name = "File Path Contains String",
+                Description = "Test for file _repoPath containing long string",
+                TipToFix = ""
+            };
         checker.Run();
         Assert.Equal(checker.StatusWhenFound, checker.Status);
     }
-    
+
     [Fact]
     public void FilePathContainsStringCheckerShouldNotExists()
     {
-        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", _repoPath)
-        {
-            Name = "File Path Contains String",
-            Description = "Test for file _repoPath containing long string",
-            TipToFix = ""
-        };
+        var checker =
+            new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", _repoPath)
+            {
+                Name = "File Path Contains String",
+                Description = "Test for file _repoPath containing long string",
+                TipToFix = ""
+            };
         checker.Run();
         Assert.Equal(checker.StatusWhenNotFound, checker.Status);
     }
@@ -287,7 +292,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
-    
+
     [Fact]
     public void DirectoryExistsWithNoMatchingFileSearch()
     {
