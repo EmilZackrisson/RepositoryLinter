@@ -39,21 +39,13 @@ public class LintRunner(GlobalConfiguration config)
         
         linter.AddCheck(new DirectoryExistsCheck(".github/workflows", git.PathToGitDirectory)
         {
-            Name = "GitHub Workflow directory exists",
-            Description = "Check if GitHub Workflow directory exists",
-            TipToFix = "Create a GitHub Workflow directory. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
+            Name = "GitHub Workflow exists",
+            Description = "Check if GitHub Workflow exists",
+            TipToFix = "Create a GitHub Workflow. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
             StatusWhenFailed = CheckStatus.Red,
-            StatusWhenEmpty = CheckStatus.Yellow
+            StatusWhenEmpty = CheckStatus.Yellow,
+            ShouldContainFiles = ["*.yaml", "*.yml"]
         });
-    
-        /*linter.AddCheck(new SearchForStringCheck("test", git.PathToGitDirectory, config)
-        {
-            Name = "Test string does not exists",
-            Description = "Check if the string 'test' exists in the repository",
-            TipToFix = "Remove the string 'test' from the repository",
-            StatusWhenFailed = CheckStatus.Red,
-            InvertResult = true
-        }); */
     
         linter.AddCheck(new SecretsCheck(git.PathToGitDirectory, config)
         {
@@ -65,9 +57,11 @@ public class LintRunner(GlobalConfiguration config)
         
         linter.AddCheck(new FilePathContainsStringChecker("test", git.PathToGitDirectory)
         {
-            Name = "File path contains string",
+            Name = "Tests exists",
             Description = "Check if the file path contains the string 'test'",
-            TipToFix = "Remove the string 'test' from the file path",
+            TipToFix = "Add tests",
+            StatusWhenFound = CheckStatus.Green,
+            StatusWhenNotFound = CheckStatus.Red
         });
     
         linter.Run();

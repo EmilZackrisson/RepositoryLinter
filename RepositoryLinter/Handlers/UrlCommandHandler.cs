@@ -1,4 +1,3 @@
-using System.CommandLine.Parsing;
 using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter.Handlers;
@@ -10,12 +9,17 @@ public class UrlCommandHandler(LintRunner runner, GlobalConfiguration config)
         Console.WriteLine($"Linting URL: {url}");
 
         config.PathToSaveGitRepos = pathToSave ?? config.PathToSaveGitRepos;
-
+        
         try
         {
             var git = new Git(new Uri(url), config);
             git.Clone();
             runner.Run(git);
+
+            if (!config.CleanUp)
+            {
+                Console.WriteLine($"Cleanup is disabled: Cloned repository saved at {git.PathToGitDirectory}");
+            }
         }
         catch (CheckFailedException)
         {
@@ -29,13 +33,5 @@ public class UrlCommandHandler(LintRunner runner, GlobalConfiguration config)
         }
         
         return Task.CompletedTask;
-    }
-    
-    public static void Validate(ArgumentResult url)
-    {
-        if (!Uri.TryCreate(url.Tokens[0].Value, UriKind.Absolute, out _))
-        {
-            url.ErrorMessage = $"Invalid URL: {url.Tokens[0].Value}";
-        }
     }
 }

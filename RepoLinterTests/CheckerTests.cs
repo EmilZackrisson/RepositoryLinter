@@ -6,61 +6,64 @@ namespace RepoLinterTests;
 
 public class CheckerTests
 {
-    private readonly GlobalConfiguration _config = new(); 
+    private readonly GlobalConfiguration _config = new();
+    private string _repoPath = "";
     public CheckerTests()
     {
         CreateFakeRepoWhereAllChecksPass();
     }
     
-    private static void CreateFakeRepoWhereAllChecksPass()
+    private void CreateFakeRepoWhereAllChecksPass()
     {
         // Create a fake repository where all checks pass
-        var path = Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass");
-        Directory.CreateDirectory(path);
+        _repoPath = Path.Join(Path.GetTempPath(), "FakeRepoWhereAllTestsPass");
+        Directory.CreateDirectory(_repoPath);
         
         // Create a .gitingore file
-        File.WriteAllText(Path.Join(path, ".gitignore"), "node_modules");
+        File.WriteAllText(Path.Join(_repoPath, ".gitignore"), "node_modules");
         
         // Create a README.md file
-        File.WriteAllText(Path.Join(path, "README.md"), "# Hello World");
+        File.WriteAllText(Path.Join(_repoPath, "README.md"), "# Hello World");
         
         // Create a README.txt file
-        File.WriteAllText(Path.Join(path, "README.txt"), "Hello World");
+        File.WriteAllText(Path.Join(_repoPath, "README.txt"), "Hello World");
         
         // Create a LICENSE file
-        File.WriteAllText(Path.Join(path, "LICENSE"), "MIT LICENSE");
+        File.WriteAllText(Path.Join(_repoPath, "LICENSE"), "MIT LICENSE");
         
         // Create a LICENSE_Empty file
-        File.WriteAllText(Path.Join(path, "EMPTY_LICENSE"), "");
+        File.WriteAllText(Path.Join(_repoPath, "EMPTY_LICENSE"), "");
         
         // Create a GitHub Workflows directory
-        Directory.CreateDirectory(Path.Join(path, ".github/workflows"));
+        Directory.CreateDirectory(Path.Join(_repoPath, ".github/workflows"));
         // Create a GitHub Workflows file
-        File.WriteAllText(Path.Join(path, ".github/workflows/main.yaml"), "name: CI");
+        File.WriteAllText(Path.Join(_repoPath, ".github/workflows/main.yaml"), "name: CI");
         
         // Create a fake secret somewhere
-        Directory.CreateDirectory(Path.Join(path, "secrets"));
-        File.WriteAllText(Path.Join(path, "secrets/secret.txt"), "45f68f4c-930d-4648-88c3-3a6e260da304");
+        Directory.CreateDirectory(Path.Join(_repoPath, "secrets"));
+        File.WriteAllText(Path.Join(_repoPath, "secrets/secret.txt"), "45f68f4c-930d-4648-88c3-3a6e260da304");
         
         // Create a directory without any secrets
-        Directory.CreateDirectory(Path.Join(path, "no-secrets"));
+        Directory.CreateDirectory(Path.Join(_repoPath, "no-secrets"));
         
         // Create a directory without any license
-        Directory.CreateDirectory(Path.Join(path, "no-license"));
+        Directory.CreateDirectory(Path.Join(_repoPath, "no-license"));
         
         // Create a directory with a long name that should be found
-        Directory.CreateDirectory(Path.Join(path, "thisisalongdirectorynamethatisnotrandomandshouldbefound"));
+        var x = Path.Join(_repoPath, "thisisalongdirectorynamethatisnotrandomandshouldbefound");
+        Directory.CreateDirectory(x);
+        File.WriteAllText(Path.Join(x, "test"), "HELLO");
     }
     
     ~CheckerTests()
     {
-        Directory.Delete(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), true);
+        Directory.Delete(_repoPath, true);
     }
 
     [Fact]
     public void FileShouldExists()
     {
-        var checker = new FileExistsCheck("README.md", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("README.md", _repoPath)
         {
             Name = "README",
             Description = "Test for README.md",
@@ -73,7 +76,7 @@ public class CheckerTests
     [Fact]
     public void FileShouldExistsWildcard()
     {
-        var checker = new FileExistsCheck("README.*", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("README.*", _repoPath)
         {
             Name = "README Wildcard",
             Description = "Testing for README.*",
@@ -86,7 +89,7 @@ public class CheckerTests
     [Fact]
     public void FileShouldNotBeEmpty()
     {
-        var checker = new FileExistsCheck("README.md", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("README.md", _repoPath)
         {
             Name = "README Not Empty",
             Description = "Testing for README.md to not be empty",
@@ -99,7 +102,7 @@ public class CheckerTests
     [Fact]
     public void FileShouldBeEmpty()
     {
-        var checker = new FileExistsCheck("EMPTY_LICENSE", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("EMPTY_LICENSE", _repoPath)
         {
             Name = "LICENSE Empty",
             Description = "Testing for LICENSE to be empty",
@@ -113,7 +116,7 @@ public class CheckerTests
     [Fact]
     public void FileShouldNotExists()
     {
-        var checker = new FileExistsCheck("NOTEXISTINGFILE", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FileExistsCheck("NOTEXISTINGFILE", _repoPath)
         {
             Name = "NOTEXISTINGFILE",
             Description = "NOTEXISTINGFILE should not exist",
@@ -126,7 +129,7 @@ public class CheckerTests
     [Fact]
     public void DirectoryShouldExists()
     {
-        var checker = new DirectoryExistsCheck(".github/workflows", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new DirectoryExistsCheck(".github/workflows", _repoPath)
         {
             Name = "GitHub Workflows",
             Description = "Test for GitHub Workflows directory",
@@ -139,7 +142,7 @@ public class CheckerTests
     [Fact]
     public void DirectoryShouldNotExists()
     {
-        var checker = new DirectoryExistsCheck("NOTEXISTINGDIRECTORY", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new DirectoryExistsCheck("NOTEXISTINGDIRECTORY", _repoPath)
         {
             Name = "NOTEXISTINGDIRECTORY",
             Description = "Test for NOTEXISTINGDIRECTORY",
@@ -152,7 +155,7 @@ public class CheckerTests
     [Fact]
     public void SearchForStringShouldExists()
     {
-        var checker = new SearchForStringCheck("name: CI", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
+        var checker = new SearchForStringCheck("name: CI", _repoPath, _config)
         {
             Name = "Search for 'name: CI'",
             Description = "Test for 'name: CI' string",
@@ -165,7 +168,7 @@ public class CheckerTests
     [Fact]
     public void SearchForStringShouldNotExists()
     {
-        var checker = new SearchForStringCheck("NOTEXISTINGSTRING", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"), _config)
+        var checker = new SearchForStringCheck("NOTEXISTINGSTRING", _repoPath, _config)
         {
             Name = "Search for 'NOTEXISTINGSTRING'",
             Description = "Test for 'NOTEXISTINGSTRING' string",
@@ -191,7 +194,7 @@ public class CheckerTests
     [Fact]
     public void LicenseFileCheckerShouldExists()
     {
-        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new LicenseFileChecker(_repoPath)
         {
             Name = "License File Checker",
             Description = "Test for LICENSE file",
@@ -204,10 +207,9 @@ public class CheckerTests
     [Fact]
     public void LicenceFileCheckerMultipleFiles()
     {
-        var path = Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass");
-        File.WriteAllText(Path.Join(path, "LICENSE.md"), "MIT LICENSE");
+        File.WriteAllText(Path.Join(_repoPath, "LICENSE.md"), "MIT LICENSE");
         
-        var checker = new LicenseFileChecker(path)
+        var checker = new LicenseFileChecker(_repoPath)
         {
             Name = "License File Checker",
             Description = "Test for LICENSE file",
@@ -217,7 +219,7 @@ public class CheckerTests
         checker.Run();
         Assert.Equal(CheckStatus.Yellow, checker.Status);
         
-        File.Delete(Path.Join(path, "LICENSE.md"));
+        File.Delete(Path.Join(_repoPath, "LICENSE.md"));
     }
     
     [Fact]
@@ -236,7 +238,7 @@ public class CheckerTests
     [Fact]
     public void LicenseFileInDirectoryCheckerShouldExists()
     {
-        var checker = new LicenseFileChecker(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new LicenseFileChecker(_repoPath)
         {
             Name = "License File In Directory Checker",
             Description = "Test for LICENSE file in LICENSE directory",
@@ -249,25 +251,54 @@ public class CheckerTests
     [Fact]
     public void FilePathContainsStringCheckerShouldExists()
     {
-        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbefound", _repoPath)
         {
             Name = "File Path Contains String",
-            Description = "Test for file path containing long string",
+            Description = "Test for file _repoPath containing long string",
             TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(checker.StatusWhenFound, checker.Status);
+    }
+    
+    [Fact]
+    public void FilePathContainsStringCheckerShouldNotExists()
+    {
+        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", _repoPath)
+        {
+            Name = "File Path Contains String",
+            Description = "Test for file _repoPath containing long string",
+            TipToFix = ""
+        };
+        checker.Run();
+        Assert.Equal(checker.StatusWhenNotFound, checker.Status);
+    }
+
+    [Fact]
+    public void DirectoryExistsWithFileSearch()
+    {
+        var checker = new DirectoryExistsCheck(".github/workflows", _repoPath)
+        {
+            Name = "GitHub Workflows Exists",
+            Description = "GitHub Workflows Exists",
+            TipToFix = "Add it",
+            ShouldContainFiles = ["*.yml", "*.yaml"]
         };
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);
     }
+    
     [Fact]
-    public void FilePathContainsStringCheckerShouldNotExists()
+    public void DirectoryExistsWithNoMatchingFileSearch()
     {
-        var checker = new FilePathContainsStringChecker("thisisalongdirectorynamethatisnotrandomandshouldbenotfound", Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass"))
+        var checker = new DirectoryExistsCheck(".github/workflows", _repoPath)
         {
-            Name = "File Path Contains String",
-            Description = "Test for file path containing long string",
-            TipToFix = ""
+            Name = "GitHub Workflows Exists",
+            Description = "GitHub Workflows Exists",
+            TipToFix = "Add it",
+            ShouldContainFiles = ["*.png", "*.jpg"]
         };
         checker.Run();
-        Assert.Equal(CheckStatus.Green, checker.Status);
+        Assert.Equal(CheckStatus.Red, checker.Status);
     }
 }

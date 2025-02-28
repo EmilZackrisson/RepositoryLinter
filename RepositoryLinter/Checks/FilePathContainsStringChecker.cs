@@ -1,42 +1,56 @@
+using System.Text;
+
 namespace RepositoryLinter.Checks;
 
 public class FilePathContainsStringChecker(string stringToFind, string pathToGitRepo) : Checker
 {
     private readonly List<string> _foundPaths = [];
 
-    public CheckStatus StatusWhenFound = CheckStatus.Green;
-    public CheckStatus StatusWhenNotFound = CheckStatus.Red;
+    public CheckStatus StatusWhenFound { get; init; } = CheckStatus.Green;
+    public CheckStatus StatusWhenNotFound { get; init; } = CheckStatus.Red;
+
+    private readonly GitIgnoreHandler _gitIgnore = new(pathToGitRepo);
     
     public override void Run()
     {
-        var paths = GetAllFilePaths().ToList();
+        var paths = GetAllFilePaths();
         
         foreach (var path in paths)
         {
-            var found = path.Contains(stringToFind);
+            var relativePath = Path.GetRelativePath(pathToGitRepo, path);
+            var found = relativePath.Contains(stringToFind);
+            
+            var ignored = _gitIgnore.IsIgnored(relativePath);
 
-            if (found)
+            if (found && !ignored)
             {
-                _foundPaths.Add(path);
+                _foundPaths.Add(relativePath);
             }
         }
         
         // Set status depending on if files are found
-        Status = _foundPaths.Any() ? StatusWhenFound : StatusWhenNotFound;
+        Status = _foundPaths.Count != 0 ? StatusWhenFound : StatusWhenNotFound;
     }
 
-    private IEnumerable<string> GetAllFilePaths()
+    /// <summary>
+    /// Gets all file paths recursively from git repo.
+    /// </summary>
+    /// <returns>A list of all paths</returns>
+    private List<string> GetAllFilePaths()
     {
-        return Directory.EnumerateFiles(pathToGitRepo, "*.*", SearchOption.AllDirectories);
+        return Directory.GetFiles(pathToGitRepo, "*.*", SearchOption.AllDirectories).ToList();
     }
 
     public override string ToString()
     {
-        if (Status == CheckStatus.Green)
+        var builder = new StringBuilder(base.ToString());
+
+        foreach (var path in _foundPaths)
         {
-            return base.ToString();
+            builder.Append(Environment.NewLine);
+            builder.Append(path);
         }
         
-        return base.ToString() + "\n" + "Found string in paths:" + "\n" + string.Join("\n", _foundPaths);
+        return builder.ToString();
     }
 }

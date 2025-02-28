@@ -18,7 +18,7 @@ public class GlobalConfiguration
     public bool CleanUp { get; set; } = true; 
     
     /// <summary>
-    /// Path to save cloned Git repositories. Default is /tmp/repolinter/git.
+    /// Path to save cloned Git repositories. Default is random temporary path.
     /// </summary>
-    public string PathToSaveGitRepos { get; set; } = "/tmp/repolinter/git";
+    public string PathToSaveGitRepos { get; set; } = Path.Join(Path.GetTempPath(), "RepositoryLinter");
 }

@@ -6,11 +6,10 @@ namespace RepositoryLinter;
 public class Git
 {
     public string ParentDirectory { get; }
-    public bool SaveToDisk { get; set; } = false;
     private readonly Uri _url = null!;
-    // Get name of the repository
     public readonly string RepositoryName;
     public string PathToGitDirectory { get; }
+    private readonly bool _cleanup;
     
     /// <summary>
     /// Creates a new Git object with a URL
@@ -26,8 +25,11 @@ public class Git
            
         ParentDirectory = config.PathToSaveGitRepos;
         _url = url;
-        RepositoryName = Path.GetFileName(_url.LocalPath);
+        
+        // Get repo name
+        RepositoryName = url.ToString().TrimEnd('/').Split('/')[^1];
         PathToGitDirectory = Path.Join(ParentDirectory, RepositoryName);
+        _cleanup = !config.CleanUp;
     }
 
     /// <summary>
@@ -43,6 +45,7 @@ public class Git
             throw new DirectoryNotFoundException("Path does not exist");
         }
         
+        
         // Check if the path is a git repository
         if (!Directory.Exists(Path.Join(localPath, ".git")))
         {
@@ -53,12 +56,12 @@ public class Git
         RepositoryName = Path.GetFileName(localPath);
         ParentDirectory = Path.GetDirectoryName(localPath)!;
         PathToGitDirectory = localPath;
-        SaveToDisk = true;
+        _cleanup = true;
     }
     
     ~Git()
     {
-        if (!SaveToDisk)
+        if (_cleanup)
         {
             DeleteGitDirectory();
         }

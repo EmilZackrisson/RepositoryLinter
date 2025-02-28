@@ -15,7 +15,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     /// <summary>
     /// GitIgnore object to check if files are ignored by .gitignore.
     /// </summary>
-    private readonly GitIgnore _gitIgnore = new(pathToGitRepo, config.GitIgnoreEnabled);
+    private readonly GitIgnoreHandler _gitIgnore = new(pathToGitRepo, config.GitIgnoreEnabled);
     
     /// <summary>
     /// Additional information about the check. This is set if secrets are found in files that are ignored by .gitignore.
@@ -31,22 +31,24 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     public override void Run()
     {
         var directory = Path.GetFileName(pathToGitRepo);
-        RunTrufflehogCommand($"git {directory} --json --results=verified,unknown --fail");
+        RunTrufflehogCommand($"filesystem {directory} --json --results=verified,unknown --fail");
         RemoveIgnoredFiles();
     }
     
     public override string ToString()
     {
         var outputBuilder = new StringBuilder(base.ToString());
+        outputBuilder.Append('\n');
         
         if (Status == CheckStatus.Green)
         {
-            outputBuilder.Append($"Ran Trufflehog with command \"{_lastRunCommand}\"");
+            outputBuilder.Append($"Ran Trufflehog with command \"{_lastRunCommand}\" and no secrets where found.");
             return outputBuilder.ToString();
         }
         
         if (Status == CheckStatus.Yellow)
         {
+            outputBuilder.Append(Environment.NewLine);
             outputBuilder.Append("\n" + _additionalInfo);
             return outputBuilder.ToString();
         }
@@ -62,7 +64,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
                 continue;
             }
             
-            outputBuilder.Append(formatted + "\n");
+            outputBuilder.Append(formatted + Environment.NewLine);
         }
         
         // Number of secrets found

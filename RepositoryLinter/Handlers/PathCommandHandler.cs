@@ -21,7 +21,8 @@ public class PathCommandHandler(LintRunner runner)
         }
         catch (Exception e)
         {
-            Console.Error.WriteLine($"Failed to lint: {path}", e);
+            Console.Error.WriteLine($"Failed to lint: {path}");
+            Console.Error.WriteLine(e.Message);
             Environment.Exit(1);
         }
         
