@@ -183,7 +183,7 @@ public class CheckerTests
     public void SecretsShouldNotExists()
     {
         var checker =
-            new SecretsCheck(Path.Join(Directory.GetCurrentDirectory(), "FakeRepoWhereAllChecksPass", "no-secrets"),
+            new SecretsCheck(Path.Join(_repoPath, "no-secrets"),
                 _config)
             {
                 Name = "Secrets",
