@@ -68,7 +68,6 @@ public class LintRunner(GlobalConfiguration config)
             Name = "File path contains string",
             Description = "Check if the file path contains the string 'test'",
             TipToFix = "Remove the string 'test' from the file path",
-            StatusWhenFailed = CheckStatus.Red
         });
     
         linter.Run();

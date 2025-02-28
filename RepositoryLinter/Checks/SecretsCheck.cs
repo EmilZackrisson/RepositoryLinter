@@ -26,6 +26,8 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     /// Additional information about the check. This is set if secrets are found in files that are ignored by .gitignore.
     /// </summary>
     private string _additionalInfo = "";
+
+    private string? _lastRunCommand;
     public override void Run()
     {
         var directory = Path.GetFileName(pathToGitRepo);
@@ -39,6 +41,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         
         if (Status == CheckStatus.Green)
         {
+            outputBuilder.Append($"Ran Trufflehog with command \"{_lastRunCommand}\"");
             return outputBuilder.ToString();
         }
         
@@ -100,6 +103,8 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     private void RunTrufflehogCommand(string command)
     {
         var parentDirectory = Path.GetDirectoryName(pathToGitRepo)!;
+
+        _lastRunCommand = $"trufflehog {command}";
         
         var p = new Process
         {
