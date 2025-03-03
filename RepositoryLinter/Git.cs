@@ -10,7 +10,7 @@ public class Git
     public readonly string RepositoryName;
     public string PathToGitDirectory { get; }
     private readonly bool _cleanup;
-    
+
     /// <summary>
     /// Creates a new Git object with a URL
     /// </summary>
@@ -22,10 +22,10 @@ public class Git
         {
             Directory.CreateDirectory(config.PathToSaveGitRepos);
         }
-           
+
         ParentDirectory = config.PathToSaveGitRepos;
         _url = url;
-        
+
         // Get repo name
         RepositoryName = url.ToString().TrimEnd('/').Split('/')[^1];
         PathToGitDirectory = Path.Join(ParentDirectory, RepositoryName);
@@ -44,21 +44,21 @@ public class Git
         {
             throw new DirectoryNotFoundException("Path does not exist");
         }
-        
-        
+
+
         // Check if the path is a git repository
         if (!Directory.Exists(Path.Join(localPath, ".git")))
         {
             throw new GitException("Path is not a git repository");
         }
-        
+
         // Split the path to get the directory and the repository name
         RepositoryName = Path.GetFileName(localPath);
         ParentDirectory = Path.GetDirectoryName(localPath)!;
         PathToGitDirectory = localPath;
         _cleanup = true;
     }
-    
+
     ~Git()
     {
         if (_cleanup)
@@ -66,7 +66,7 @@ public class Git
             DeleteGitDirectory();
         }
     }
-    
+
     /// <summary>
     /// Removes the cloned git repository
     /// </summary>
@@ -86,7 +86,7 @@ public class Git
         {
             DeleteGitDirectory();
         }
-        
+
         // Clone the repository using git command
         var p = new Process
         {
@@ -100,21 +100,21 @@ public class Git
                 CreateNoWindow = true
             }
         };
-        
+
         var started = p.Start();
         if (!started)
         {
             throw new ProcessFailedToStartException("Failed to start git clone");
         }
-        
+
         p.WaitForExit();
-        
+
         if (p.ExitCode != 0)
         {
             throw new GitException("Failed to clone git repository");
         }
     }
-    
+
     /// <summary>
     /// Gets the commit count of the Git repository.
     /// </summary>
@@ -135,19 +135,19 @@ public class Git
                 WorkingDirectory = PathToGitDirectory
             }
         };
-        
+
         var started = p.Start();
         if (!started)
         {
             throw new GitException("Failed to start git rev-list");
         }
-        
+
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
-        
+
         return int.Parse(output);
     }
-    
+
     /// <summary>
     /// Returns a list of contributors to the repository
     /// </summary>
@@ -168,13 +168,13 @@ public class Git
                 WorkingDirectory = PathToGitDirectory
             }
         };
-        
+
         var started = p.Start();
         if (!started)
         {
             throw new GitException("Failed to start git shortlog");
         }
-        
+
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
 
@@ -188,11 +188,52 @@ public class Git
             {
                 continue;
             }
-            
-            contributors.Add(tmp.Split("\t")[1].Trim());
 
+            contributors.Add(tmp.Split("\t")[1].Trim());
         }
-        
+
+        return contributors;
+    }
+
+    public List<string> GetContributorsWithCommits()
+    {
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "git",
+                Arguments = $"shortlog -sne HEAD",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = PathToGitDirectory
+            }
+        };
+
+        var started = p.Start();
+        if (!started)
+        {
+            throw new GitException("Failed to start git shortlog");
+        }
+
+        var output = p.StandardOutput.ReadToEnd();
+        p.WaitForExit();
+
+        var lines = output.Split("\n");
+        var contributors = new List<string>();
+
+        foreach (var line in lines)
+        {
+            var tmp = line.Trim();
+            if (tmp.Length == 0)
+            {
+                continue;
+            }
+
+            contributors.Add(tmp);
+        }
+
         return contributors;
     }
 }

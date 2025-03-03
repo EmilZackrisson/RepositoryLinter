@@ -14,14 +14,15 @@ public class LintRunner(GlobalConfiguration config)
     {
         // Run linting pipeline
         var linter = new Linter(git, config);
-        
+
         linter.AddCheck(new FileExistsCheck(".gitignore", git.PathToGitDirectory)
         {
             Name = ".gitignore exists",
             Description = "Check if .gitignore exists",
-            TipToFix = "Create a .gitignore file. Read more about .gitignore files at https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files"
+            TipToFix =
+                "Create a .gitignore file. Read more about .gitignore files at https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files"
         });
-    
+
         linter.AddCheck(new FileExistsCheck("README.*", git.PathToGitDirectory)
         {
             Name = "README exists",
@@ -29,24 +30,26 @@ public class LintRunner(GlobalConfiguration config)
             TipToFix = "Create a README file.",
             StatusWhenEmpty = CheckStatus.Yellow
         });
-    
+
         linter.AddCheck(new LicenseFileChecker(git.PathToGitDirectory)
         {
             Name = "License Exists",
             Description = "Check if a LICENSE exists in the repository.",
-            TipToFix = "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
+            TipToFix =
+                "Create a LICENSE file. Read more about licenses at https://choosealicense.com/ and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
         });
-        
+
         linter.AddCheck(new DirectoryExistsCheck(".github/workflows", git.PathToGitDirectory)
         {
             Name = "GitHub Workflow exists",
             Description = "Check if GitHub Workflow exists",
-            TipToFix = "Create a GitHub Workflow. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
+            TipToFix =
+                "Create a GitHub Workflow. Read more about GitHub workflows at https://docs.github.com/en/actions/learn-github-actions",
             StatusWhenFailed = CheckStatus.Red,
             StatusWhenEmpty = CheckStatus.Yellow,
             ShouldContainFiles = ["*.yaml", "*.yml"]
         });
-    
+
         linter.AddCheck(new SecretsCheck(git.PathToGitDirectory, config)
         {
             Name = "Secrets check",
@@ -54,7 +57,7 @@ public class LintRunner(GlobalConfiguration config)
             TipToFix = "Remove the secrets found",
             StatusWhenFailed = CheckStatus.Red
         });
-        
+
         linter.AddCheck(new FilePathContainsStringChecker("test", git.PathToGitDirectory)
         {
             Name = "Tests exists",
@@ -63,8 +66,11 @@ public class LintRunner(GlobalConfiguration config)
             StatusWhenFound = CheckStatus.Green,
             StatusWhenNotFound = CheckStatus.Red
         });
-    
+
         linter.Run();
+
+        linter.ChangeAllowedToFail();
+
         linter.PrintResults();
 
         if (linter.StatusCode() != 0)

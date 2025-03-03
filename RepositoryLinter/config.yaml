@@ -1,0 +1,5 @@
+Checks:
+  - Name: "License Exists"
+    AllowedToFail: true
+
+PathToSaveGitRepos: "~/RepositoryLinter/git_repos"
