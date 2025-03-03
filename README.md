@@ -63,6 +63,26 @@ https://github.com/EmilZackrisson/RepositoryLinter
 /tmp/repolinter/RepositoryLinter
 ```
 
+## Configuration
+The program can be configured using a yaml and the --config flag. This is optional and the program will use the default configuration if no configuration is provided.
+
+```yaml
+Checks:
+  - Name: "License Exists" # Name of the check. (See https://github.com/EmilZackrisson/RepositoryLinter/blob/main/RepositoryLinter/LintRunner.cs)
+    AllowedToFail: false # Default
+
+# Path to save the git repositories to. Default is a temp directory.
+PathToSaveGitRepos: "~/RepositoryLinter"
+
+# Truncate the output of each check to 10 lines. Default is true.
+TruncateOutput: true # Default
+
+# Clean up the cloned repositories after the program has finished. Default is true.
+CleanUp: true # Default
+```
+
+
+
 ## Run tests
 
 The unit tests are using the [xUnit](https://xunit.net/) framework.

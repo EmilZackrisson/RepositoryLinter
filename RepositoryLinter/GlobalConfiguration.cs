@@ -29,7 +29,7 @@ public class GlobalConfiguration
 
     public List<CheckerConfiguration> Checks { get; set; } = new();
 
-    public static GlobalConfiguration? ReadConfiguration(string path)
+    public static GlobalConfiguration ReadConfiguration(string path)
     {
         var deserializer = new DeserializerBuilder()
             .IgnoreUnmatchedProperties()
