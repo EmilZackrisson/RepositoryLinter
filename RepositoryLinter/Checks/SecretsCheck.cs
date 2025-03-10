@@ -40,23 +40,22 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         var outputBuilder = new StringBuilder(base.ToString());
         outputBuilder.Append('\n');
 
-        if (Status == CheckStatus.Green)
+        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+        switch (Status)
         {
-            outputBuilder.Append($"Ran Trufflehog with command \"{_lastRunCommand}\" and no secrets where found.");
-            return outputBuilder.ToString();
-        }
-
-        if (Status == CheckStatus.Yellow)
-        {
-            outputBuilder.Append(_additionalInfo);
-            return outputBuilder.ToString();
+            case CheckStatus.Green:
+                outputBuilder.Append($"Ran Trufflehog with command \"{_lastRunCommand}\" and no secrets where found.");
+                return outputBuilder.ToString();
+            case CheckStatus.Yellow:
+                outputBuilder.Append(_additionalInfo);
+                return outputBuilder.ToString();
         }
 
         outputBuilder.Append("\nSecrets found:\n");
 
         foreach (var secret in _foundSecretsJson)
         {
-            var formatted = TrufflehogJsonToString(secret);
+            string formatted = TrufflehogJsonToString(secret);
 
             if (formatted == null)
             {
@@ -67,12 +66,12 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         }
 
         // Number of secrets found
-        outputBuilder.Append($"Total number of secrets found: {_foundSecretsJson.Count}\n");
+        outputBuilder.Append($"Total number of secrets found: {_foundSecretsJson.Count}");
 
-        if (_fileHasBeenIgnored)
-        {
-            outputBuilder.Append(_additionalInfo);
-        }
+        if (!_fileHasBeenIgnored) return outputBuilder.ToString();
+
+        outputBuilder.Append(Environment.NewLine);
+        outputBuilder.Append(_additionalInfo);
 
         return outputBuilder.ToString();
     }
