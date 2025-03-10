@@ -31,7 +31,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
 
     public override void Run()
     {
-        RunTrufflehogCommand($"filesystem {pathToGitRepo} --json --fail");
+        RunTrufflehogCommand($"filesystem {pathToGitRepo} --json --fail --no-update");
         RemoveIgnoredFiles();
     }
 
@@ -144,10 +144,24 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
 
         p.WaitForExit();
 
-        // If the exit code is 183, secrets were found
-        if (p.ExitCode != 183) return;
-
-        Status = CheckStatus.Red;
+        switch (p.ExitCode)
+        {
+            // If the command failed, throw an exception
+            case 1:
+                Console.Error.WriteLine($"Trufflehog exited with {p.ExitCode}");
+                throw new TrufflehogException("Trufflehog command failed");
+            // Secrets found
+            case 183:
+                Status = CheckStatus.Red;
+                break;
+            // No secrets found and command was successful
+            case 0:
+                Status = CheckStatus.Green;
+                break;
+            default:
+                Console.Error.WriteLine($"Trufflehog exited with {p.ExitCode}");
+                throw new TrufflehogException("Trufflehog command failed. Unknown exit code.");
+        }
     }
 
     /// <summary>
@@ -184,3 +198,5 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         }
     }
 }
+
+public class TrufflehogException(string message) : Exception(message);
