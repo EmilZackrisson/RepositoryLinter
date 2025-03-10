@@ -48,8 +48,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
 
         if (Status == CheckStatus.Yellow)
         {
-            outputBuilder.Append(Environment.NewLine);
-            outputBuilder.Append("\n" + _additionalInfo);
+            outputBuilder.Append(_additionalInfo);
             return outputBuilder.ToString();
         }
 
@@ -149,6 +148,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
             // If the command failed, throw an exception
             case 1:
                 Console.Error.WriteLine($"Trufflehog exited with {p.ExitCode}");
+                Console.Error.WriteLine(p.StandardError.ReadToEnd());
                 throw new TrufflehogException("Trufflehog command failed");
             // Secrets found
             case 183:
@@ -160,6 +160,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
                 break;
             default:
                 Console.Error.WriteLine($"Trufflehog exited with {p.ExitCode}");
+                Console.Error.WriteLine(p.StandardError.ReadToEnd());
                 throw new TrufflehogException("Trufflehog command failed. Unknown exit code.");
         }
     }
@@ -170,13 +171,18 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     private void RemoveIgnoredFiles()
     {
         var ignoredFiles = new List<dynamic>();
-        foreach (var secret in _foundSecretsJson.Where(secret =>
-                     _gitIgnore.IsIgnored(secret.SourceMetadata.Data.Filesystem.file.ToString())))
+
+        foreach (var foundSecretJson in _foundSecretsJson)
         {
-            _fileHasBeenIgnored = true;
-            ignoredFiles.Add(secret);
-            _additionalInfo =
-                "Secrets found in files that are ignored by .gitignore, and thus not being commited. Be cautious. If you want to search in these files, run the program with the --ignore-gitignore flag.";
+            // Get filename from the JSON object
+            string filename = foundSecretJson.SourceMetadata.Data.Filesystem.file;
+
+            // Check if the file is ignored by .gitignore
+            if (_gitIgnore.IsIgnored(filename))
+            {
+                ignoredFiles.Add(foundSecretJson);
+                _fileHasBeenIgnored = true;
+            }
         }
 
         // Remove ignored files from the list
@@ -189,6 +195,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         if (_foundSecretsJson.Count == 0 && _fileHasBeenIgnored)
         {
             Status = CheckStatus.Yellow;
+            _additionalInfo = "All secrets found are in files that are ignored by .gitignore.";
         }
 
         // If some secrets are found in ignored files, set status to red
