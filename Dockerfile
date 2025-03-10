@@ -1,4 +1,8 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
+﻿LABEL org.opencontainers.image.source=https://github.com/EmilZackrisson/RepositoryLinter
+LABEL org.opencontainers.image.description="RepositoryLinter is a tool to lint your repository for secrets and other common issues."
+LABEL org.opencontainers.image.licenses=MIT
+
+FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
 RUN apt update && apt install -y git curl
 
 # Install trufflehog
