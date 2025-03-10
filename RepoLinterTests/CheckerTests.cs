@@ -128,13 +128,14 @@ public class CheckerTests
     }
 
     [Fact]
-    public void DirectoryShouldExists()
+    public void CheckForWorkflows()
     {
         var checker = new DirectoryExistsCheck(".github/workflows", _repoPath)
         {
             Name = "GitHub Workflows",
             Description = "Test for GitHub Workflows directory",
-            TipToFix = "Add a GitHub Workflows directory to the repository."
+            TipToFix = "Add a GitHub Workflows directory to the repository.",
+            ShouldContainFiles = ["*.yml", "*.yaml"]
         };
         checker.Run();
         Assert.Equal(CheckStatus.Green, checker.Status);

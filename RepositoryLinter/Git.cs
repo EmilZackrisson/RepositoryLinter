@@ -120,7 +120,7 @@ public class Git
     /// </summary>
     /// <returns>The number of commits in the repository.</returns>
     /// <exception cref="Exception">Thrown when the git rev-list process fails to start.</exception>
-    public int GetCommitCount()
+    public int? GetCommitCount()
     {
         var p = new Process
         {
@@ -144,6 +144,11 @@ public class Git
 
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
+
+        if (p.ExitCode != 0)
+        {
+            return null;
+        }
 
         return int.Parse(output);
     }

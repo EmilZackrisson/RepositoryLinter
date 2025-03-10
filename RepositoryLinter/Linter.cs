@@ -65,6 +65,11 @@ public class Linter(Git git, GlobalConfiguration config)
             Console.WriteLine(contributor);
         }
 
+        if (contributors.Count == 0)
+        {
+            Console.WriteLine("No contributors found");
+        }
+
         Console.WriteLine();
 
         foreach (var check in _checks)
