@@ -7,12 +7,13 @@ This is a very simple Git repository linter for a Software Development Project c
 
 ## Features
 
-- Checks that the repository contains a README file and that it contains a LICENSE file.
+- Checks that the repository contains a README file and that it contains a LICENSE.
 - Checks that the repository contains a .gitignore file.
 - Checks if there are GitHub WorkFlow files (.github/workflows/).
-- Checks all files if they contain "test" and print the file name.
+- Checks if there are any test files in the repository. (Files with the word "test" in the path.)
 - Checks the repository for secrets using [Trufflehog](https://github.com/trufflesecurity/trufflehog).
 - Run linter on a batch of repositories.
+- Configuration using a yaml file.
 
 ## Run the program
 
@@ -20,6 +21,27 @@ This is a very simple Git repository linter for a Software Development Project c
 
 ```bash
 docker run -it --rm -v ./repolinter:/tmp/repolinter ghcr.io/emilzackrisson/repositorylinter:latest -h
+```
+
+Output:
+```
+Description:
+  Simple CLI tool to lint git repositories
+
+Usage:
+  RepositoryLinter <url-or-path> [options]
+
+Arguments:
+  <url-or-path>  URL or path to lint. Path can be a directory or a batch file containing URLs or paths, one per line.
+
+Options:
+  --disable-cleanup                    Do not delete the cloned git repository
+  --disable-truncate                   Do not truncate the output. By default, the output is truncated to 10 lines per check.
+  --ignore-gitignore                   Ignore .gitignore. Includes all files in the search.
+  --path-to-save-to <path-to-save-to>  Directory to save the repository to. If not provided, a temporary directory will be used.
+  --config <config>                    Path to configuration file.
+  --version                            Show version information
+  -?, -h, --help                       Show help and usage information
 ```
 
 ### Run without Docker
@@ -80,6 +102,18 @@ TruncateOutput: true # Default
 # Clean up the cloned repositories after the program has finished. Default is true.
 CleanUp: true # Default
 ```
+
+### Run with configuration in Docker
+```bash
+docker run -it --rm -v ./repolinter:/tmp/repolinter -v ./config.yaml:/app/config.yaml ghcr.io/emilzackrisson/repositorylinter:latest https://github.com/EmilZackrisson/RepositoryLinter --config /app/config.yaml
+```
+The configuration file in ./config.yaml on the host will be used.
+
+### Configuration priority
+The configuration priority is:
+1. Command line arguments
+2. Configuration file
+3. Default configuration
 
 
 
