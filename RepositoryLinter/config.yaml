@@ -11,3 +11,5 @@ Checks:
     AllowedToFail: true
   - Name: "Tests exists"
     AllowedToFail: true
+
+PathToSaveGitRepos: "~/git_repos"

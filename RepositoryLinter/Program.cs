@@ -35,7 +35,7 @@ var configOption = new Option<FileInfo?>("--config", "Path to configuration file
 rootCommand.AddOption(configOption);
 
 // Create global config
-var config = GlobalConfiguration.ReadConfiguration("/app/config.yaml");
+var config = new GlobalConfiguration();
 
 
 var commandLineBuilder = new CommandLineBuilder(rootCommand);
