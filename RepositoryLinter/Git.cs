@@ -5,10 +5,26 @@ namespace RepositoryLinter;
 
 public class Git
 {
+    /// <summary>
+    /// Path to the parent directory where the Git repository is saved
+    /// </summary>
     public string ParentDirectory { get; }
+
     private readonly Uri _url = null!;
+
+    /// <summary>
+    /// The name of the repository. This is the last part of the URL.
+    /// </summary>
     public readonly string RepositoryName;
+
+    /// <summary>
+    /// Path to the cloned Git repository
+    /// </summary>
     public string PathToGitDirectory { get; }
+
+    /// <summary>
+    /// Flag to determine if the Git repository should be deleted when the object is destroyed
+    /// </summary>
     private readonly bool _cleanup;
 
     /// <summary>
@@ -99,25 +115,8 @@ public class Git
             DeleteGitDirectory();
         }
 
-        // Clone the repository using git command
-        var p = new Process
-        {
-            StartInfo =
-            {
-                FileName = "git",
-                Arguments = $"clone {_url} {PathToGitDirectory}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-
-        var started = p.Start();
-        if (!started)
-        {
-            throw new ProcessFailedToStartException("Failed to start git clone");
-        }
+        // Clone the repository in the parent directory
+        var p = CreateAndStartGitProcess($"clone {_url} {RepositoryName}", ParentDirectory);
 
         p.WaitForExit();
 
@@ -134,25 +133,7 @@ public class Git
     /// <exception cref="Exception">Thrown when the git rev-list process fails to start.</exception>
     public int? GetCommitCount()
     {
-        var p = new Process
-        {
-            StartInfo =
-            {
-                FileName = "git",
-                Arguments = $"rev-list --count HEAD",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WorkingDirectory = PathToGitDirectory
-            }
-        };
-
-        var started = p.Start();
-        if (!started)
-        {
-            throw new GitException("Failed to start git rev-list");
-        }
+        var p = CreateAndStartGitProcess("rev-list --count HEAD");
 
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
@@ -172,85 +153,55 @@ public class Git
     /// <exception cref="Exception">Failed to run git command</exception>
     public IEnumerable<string> GetContributors()
     {
-        var p = new Process
-        {
-            StartInfo =
-            {
-                FileName = "git",
-                Arguments = $"shortlog -sne HEAD",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WorkingDirectory = PathToGitDirectory
-            }
-        };
-
-        var started = p.Start();
-        if (!started)
-        {
-            throw new GitException("Failed to start git shortlog");
-        }
+        var p = CreateAndStartGitProcess("shortlog -sne HEAD");
 
         var output = p.StandardOutput.ReadToEnd();
         p.WaitForExit();
 
         var lines = output.Split("\n");
-        var contributors = new List<string>();
 
-        foreach (var line in lines)
-        {
-            var tmp = line.Trim();
-            if (tmp.Length == 0)
-            {
-                continue;
-            }
-
-            contributors.Add(tmp.Split("\t")[1].Trim());
-        }
-
-        return contributors;
+        return (from line in lines select line.Trim() into tmp where tmp.Length != 0 select tmp.Split("\t")[1].Trim())
+            .ToList();
     }
 
     public List<string> GetContributorsWithCommits()
+    {
+        var p = CreateAndStartGitProcess("shortlog -sne HEAD");
+
+        var output = p.StandardOutput.ReadToEnd();
+        p.WaitForExit();
+
+        var lines = output.Split("\n");
+
+        return lines.Select(line => line.Trim()).Where(tmp => tmp.Length != 0).ToList();
+    }
+
+    /// <summary>
+    /// Creates a new process for running git commands.
+    /// </summary>
+    /// <param name="arguments">Arguments to start git process with</param>
+    /// <param name="workingDirectory">Working directory for process</param>
+    /// <returns>A git process</returns>
+    /// <exception cref="ProcessFailedToStartException">Git process failed to start</exception>
+    private Process CreateAndStartGitProcess(string arguments, string? workingDirectory = null)
     {
         var p = new Process
         {
             StartInfo =
             {
                 FileName = "git",
-                Arguments = $"shortlog -sne HEAD",
+                Arguments = arguments,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                WorkingDirectory = PathToGitDirectory
+                WorkingDirectory = workingDirectory ?? PathToGitDirectory
             }
         };
 
         var started = p.Start();
-        if (!started)
-        {
-            throw new GitException("Failed to start git shortlog");
-        }
+        if (!started) throw new ProcessFailedToStartException("Failed to start git command");
 
-        var output = p.StandardOutput.ReadToEnd();
-        p.WaitForExit();
-
-        var lines = output.Split("\n");
-        var contributors = new List<string>();
-
-        foreach (var line in lines)
-        {
-            var tmp = line.Trim();
-            if (tmp.Length == 0)
-            {
-                continue;
-            }
-
-            contributors.Add(tmp);
-        }
-
-        return contributors;
+        return p;
     }
 }

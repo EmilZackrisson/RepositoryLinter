@@ -76,15 +76,14 @@ public class GitTest
     {
         var git = new Git(new Uri("https://github.com/githubtraining/hellogitworld"), _config);
         git.Clone();
-        var directory = Path.Join(git.ParentDirectory, git.RepositoryName);
-        _testOutputHelper.WriteLine("Git repository cloned to: " + directory);
-        Assert.True(Directory.Exists(directory));
+        _testOutputHelper.WriteLine("Git repository cloned to: " + git.PathToGitDirectory);
+        Assert.True(Directory.Exists(git.PathToGitDirectory));
     }
 
     [Fact]
     public void CreateGitObjectWithLocalPath()
     {
-        Git git = new Git(_path);
+        var git = new Git(_path);
         Assert.Equal(_path, Path.Join(git.ParentDirectory, git.RepositoryName));
     }
 
