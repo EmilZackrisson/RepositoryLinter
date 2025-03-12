@@ -30,6 +30,11 @@ public class Git
         RepositoryName = url.ToString().TrimEnd('/').Split('/')[^1];
         PathToGitDirectory = Path.Join(ParentDirectory, RepositoryName);
         _cleanup = !config.CleanUp;
+
+        if (Directory.Exists(PathToGitDirectory))
+        {
+            DeleteGitDirectory();
+        }
     }
 
     /// <summary>

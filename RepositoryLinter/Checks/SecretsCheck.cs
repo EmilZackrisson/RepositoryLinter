@@ -171,6 +171,13 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
             // Get filename from the JSON object
             string filename = foundSecretJson.SourceMetadata.Data.Filesystem.file;
 
+            // All files in the .git directory are ignored. Should they be ignored?
+            if (filename.Split('/').ToList().Contains(".git"))
+            {
+                ignoredFiles.Add(foundSecretJson);
+                continue;
+            }
+
             // Check if the file is ignored by .gitignore
             if (_gitIgnore.IsIgnored(filename))
             {
@@ -196,6 +203,12 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         if (_foundSecretsJson.Count != 0)
         {
             Status = CheckStatus.Red;
+        }
+
+        // If no secrets are found, set status to green
+        if (_foundSecretsJson.Count == 0 && !_fileHasBeenIgnored)
+        {
+            Status = CheckStatus.Green;
         }
     }
 }

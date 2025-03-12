@@ -42,8 +42,19 @@ public class GlobalConfiguration
             return;
         }
 
+        if (configIndex + 1 >= programArguments.Length)
+        {
+            throw new ArgumentException("No configuration file provided.");
+        }
+
         // If the argument is found, get the path to the configuration file
         var configPath = programArguments[configIndex + 1];
+
+        // Check if the file exists
+        if (!File.Exists(configPath))
+        {
+            throw new ArgumentException($"Configuration file '{configPath}' does not exist.");
+        }
 
         // Read the configuration file and set the properties
         ReadAndSetConfiguration(configPath);

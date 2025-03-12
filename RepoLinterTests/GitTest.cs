@@ -126,7 +126,7 @@ public class GitTest
     [Fact]
     public void IgnoreFile()
     {
-        var ignore = new GitIgnoreHandler(_path);
+        var ignore = new GitCheckIgnore(_path);
         var pathToIgnoredFile = Path.Join(_path, "ignored.txt");
         var ignored = ignore.IsIgnored(pathToIgnoredFile);
         Assert.True(ignored);
@@ -135,7 +135,7 @@ public class GitTest
     [Fact]
     public void ShouldNotIgnoreFile()
     {
-        var ignore = new GitIgnoreHandler(_path);
+        var ignore = new GitCheckIgnore(_path);
         var pathToNotIgnoredFile = Path.Join(_path, "README.md");
         var ignored = ignore.IsIgnored(pathToNotIgnoredFile);
         Assert.False(ignored);
