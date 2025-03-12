@@ -3,10 +3,15 @@ using RepositoryLinter.Exceptions;
 
 namespace RepositoryLinter;
 
-public class GitCheckIgnore(string pathToGitDirectory)
+public class GitCheckIgnore(string pathToGitDirectory, bool enabled = true)
 {
     public bool IsIgnored(string path)
     {
+        if (!enabled)
+        {
+            return false;
+        }
+
         var p = new Process
         {
             StartInfo =

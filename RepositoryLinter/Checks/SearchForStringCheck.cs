@@ -17,7 +17,7 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
     public override void Run()
     {
         var files = Directory.EnumerateFiles(gitRepoPath, "*.*", SearchOption.AllDirectories);
-        var gitIgnore = new GitIgnoreHandler(gitRepoPath, config.GitIgnoreEnabled);
+        var gitIgnore = new GitCheckIgnore(gitRepoPath, config.GitIgnoreEnabled);
         var hasIgnoredFiles = false;
 
         foreach (var file in files)

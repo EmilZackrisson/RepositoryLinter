@@ -55,12 +55,6 @@ public class CheckerTests
         File.WriteAllText(Path.Join(x, "test"), "HELLO");
     }
 
-
-    ~CheckerTests()
-    {
-        Directory.Delete(_repoPath, true);
-    }
-
     [Fact]
     public void FileShouldExists()
     {

@@ -9,7 +9,7 @@ public class FilePathContainsStringChecker(string stringToFind, string pathToGit
     public CheckStatus StatusWhenFound { get; init; } = CheckStatus.Green;
     public CheckStatus StatusWhenNotFound { get; init; } = CheckStatus.Red;
 
-    private readonly GitIgnoreHandler _gitIgnore = new(pathToGitRepo);
+    private readonly GitCheckIgnore _gitIgnore = new(pathToGitRepo);
 
     public override void Run()
     {

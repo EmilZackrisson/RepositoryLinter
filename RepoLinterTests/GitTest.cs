@@ -18,11 +18,6 @@ public class GitTest
         InitFakeRepo();
     }
 
-    ~GitTest()
-    {
-        Directory.Delete(_path, true);
-    }
-
     private void InitFakeRepo()
     {
         Directory.CreateDirectory(_path);

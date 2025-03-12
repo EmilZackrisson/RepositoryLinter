@@ -15,7 +15,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     /// <summary>
     /// GitIgnore object to check if files are ignored by .gitignore.
     /// </summary>
-    private readonly GitIgnoreHandler _gitIgnore = new(pathToGitRepo, config.GitIgnoreEnabled);
+    private readonly GitCheckIgnore _gitIgnore = new(pathToGitRepo, config.GitIgnoreEnabled);
 
     /// <summary>
     /// Additional information about the check. This is set if secrets are found in files that are ignored by .gitignore.

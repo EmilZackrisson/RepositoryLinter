@@ -77,7 +77,14 @@ public class Git
     /// </summary>
     private void DeleteGitDirectory()
     {
-        Directory.Delete(PathToGitDirectory, true);
+        try
+        {
+            Directory.Delete(PathToGitDirectory, true);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // The directory does not exist, do nothing.
+        }
     }
 
     /// <summary>
