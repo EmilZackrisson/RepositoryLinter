@@ -29,13 +29,17 @@ public class GlobalConfiguration
 
     public List<CheckerConfiguration> Checks { get; set; } = new();
 
+    public bool IsFromConfigFile { get; set; }
+
     public static GlobalConfiguration ReadConfiguration(string path)
     {
+        Console.WriteLine("Reading configuration file");
         var deserializer = new DeserializerBuilder()
             .IgnoreUnmatchedProperties()
             .Build();
         var yaml = File.ReadAllText(path);
         var config = deserializer.Deserialize<GlobalConfiguration>(yaml);
+        config.IsFromConfigFile = true;
 
         return config;
     }

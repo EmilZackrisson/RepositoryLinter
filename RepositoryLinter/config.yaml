@@ -1,5 +1,13 @@
 Checks:
   - Name: "License Exists"
     AllowedToFail: true
-
-PathToSaveGitRepos: "~/RepositoryLinter/git_repos"
+  - Name: ".gitignore exists"
+    AllowedToFail: true
+  - Name: "README exists"
+    AllowedToFail: true
+  - Name: "GitHub Workdflow exists"
+    AllowedToFail: true
+  - Name: "Secrets check"
+    AllowedToFail: true
+  - Name: "Tests exists"
+    AllowedToFail: true

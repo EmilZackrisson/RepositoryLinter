@@ -35,7 +35,8 @@ var configOption = new Option<FileInfo?>("--config", "Path to configuration file
 rootCommand.AddOption(configOption);
 
 // Create global config
-var config = new GlobalConfiguration();
+var config = GlobalConfiguration.ReadConfiguration("/app/config.yaml");
+
 
 var commandLineBuilder = new CommandLineBuilder(rootCommand);
 
@@ -44,6 +45,24 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
 {
     var tokens = context.ParseResult.Tokens;
     var args = tokens.Select(t => t.Value).ToArray();
+
+    if (context.ParseResult.HasOption(configOption))
+    {
+        try
+        {
+            var configFile = context.ParseResult.GetValueForOption(configOption)!;
+            var newConfig = GlobalConfiguration.ReadConfiguration(configFile.FullName);
+            if (newConfig.IsFromConfigFile)
+            {
+                config = newConfig;
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            await Console.Error.WriteLineAsync(e.Message);
+            Environment.Exit(1);
+        }
+    }
 
     // Set global options
     config.GitIgnoreEnabled = !args.Contains("--ignore-gitignore");
@@ -54,25 +73,6 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
     if (context.ParseResult.HasOption(pathToSaveOption))
     {
         config.PathToSaveGitRepos = context.ParseResult.GetValueForOption(pathToSaveOption)!;
-    }
-
-    // Handle config file
-    if (context.ParseResult.HasOption(configOption))
-    {
-        try
-        {
-            var configFile = context.ParseResult.GetValueForOption(configOption)!;
-            var newConfig = GlobalConfiguration.ReadConfiguration(configFile.FullName);
-            if (newConfig != null)
-            {
-                config = newConfig;
-            }
-        }
-        catch (FileNotFoundException e)
-        {
-            await Console.Error.WriteLineAsync(e.Message);
-            Environment.Exit(1);
-        }
     }
 
     await next(context);
