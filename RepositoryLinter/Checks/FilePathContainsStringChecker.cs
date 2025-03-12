@@ -10,16 +10,16 @@ public class FilePathContainsStringChecker(string stringToFind, string pathToGit
     public CheckStatus StatusWhenNotFound { get; init; } = CheckStatus.Red;
 
     private readonly GitIgnoreHandler _gitIgnore = new(pathToGitRepo);
-    
+
     public override void Run()
     {
         var paths = GetAllFilePaths();
-        
+
         foreach (var path in paths)
         {
             var relativePath = Path.GetRelativePath(pathToGitRepo, path);
             var found = relativePath.Contains(stringToFind);
-            
+
             var ignored = _gitIgnore.IsIgnored(relativePath);
 
             if (found && !ignored)
@@ -27,7 +27,7 @@ public class FilePathContainsStringChecker(string stringToFind, string pathToGit
                 _foundPaths.Add(relativePath);
             }
         }
-        
+
         // Set status depending on if files are found
         Status = _foundPaths.Count != 0 ? StatusWhenFound : StatusWhenNotFound;
     }
@@ -50,7 +50,13 @@ public class FilePathContainsStringChecker(string stringToFind, string pathToGit
             builder.Append(Environment.NewLine);
             builder.Append(path);
         }
-        
+
+        if (AdditionalInformation != string.Empty)
+        {
+            builder.Append(Environment.NewLine);
+            builder.Append(AdditionalInformation);
+        }
+
         return builder.ToString();
     }
 }

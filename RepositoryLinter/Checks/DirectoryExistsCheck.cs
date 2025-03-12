@@ -14,7 +14,6 @@ public class DirectoryExistsCheck(string relativeDirectoryPath, string pathToGit
     /// </summary>
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Red;
 
-    private string _additionalInfo = string.Empty;
     public List<string> ShouldContainFiles { get; init; } = [];
     public SearchOption SearchOption { get; init; } = SearchOption.TopDirectoryOnly;
     private readonly List<string> _directoryContent = [];
@@ -31,7 +30,7 @@ public class DirectoryExistsCheck(string relativeDirectoryPath, string pathToGit
             if (empty)
             {
                 Status = StatusWhenEmpty;
-                _additionalInfo = $"Directory {relativeDirectoryPath} is empty.";
+                AdditionalInformation = $"Directory {relativeDirectoryPath} is empty.";
                 return;
             }
 
@@ -45,7 +44,7 @@ public class DirectoryExistsCheck(string relativeDirectoryPath, string pathToGit
                 if (_directoryContent.Count == 0)
                 {
                     Status = StatusWhenEmpty;
-                    _additionalInfo =
+                    AdditionalInformation =
                         $"Directory {path} does not contain any of {string.Join(',', ShouldContainFiles)}";
                     return;
                 }
@@ -59,10 +58,10 @@ public class DirectoryExistsCheck(string relativeDirectoryPath, string pathToGit
     {
         var builder = new StringBuilder(base.ToString());
 
-        if (_additionalInfo != string.Empty)
+        if (AdditionalInformation != string.Empty)
         {
             builder.Append(Environment.NewLine);
-            builder.Append(_additionalInfo);
+            builder.Append(AdditionalInformation);
         }
 
         if (_directoryContent.Count == 0) return builder.ToString();

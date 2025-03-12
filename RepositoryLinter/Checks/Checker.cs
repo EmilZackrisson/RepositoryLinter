@@ -17,6 +17,23 @@ public abstract class Checker
     /// </summary>
     public required string TipToFix { get; init; }
 
+    protected string AdditionalInformation { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Concatenates the given information to the AdditionalInformation property.
+    /// </summary>
+    /// <param name="information">A string</param>
+    public void AddAdditionalInformationLine(string information)
+    {
+        if (string.IsNullOrWhiteSpace(AdditionalInformation))
+        {
+            AdditionalInformation = information;
+            return;
+        }
+
+        AdditionalInformation += '\n' + information;
+    }
+
     /// <summary>
     /// Current status of the check.
     /// </summary>

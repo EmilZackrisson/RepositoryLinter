@@ -22,11 +22,6 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
     /// </summary>
     private bool _fileHasBeenIgnored;
 
-    /// <summary>
-    /// Additional information about the check. This is set if secrets are found in files that are ignored by .gitignore.
-    /// </summary>
-    private string _additionalInfo = "";
-
     private string? _lastRunCommand;
 
     public override void Run()
@@ -47,7 +42,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
                 outputBuilder.Append($"Ran Trufflehog with command \"{_lastRunCommand}\" and no secrets where found.");
                 return outputBuilder.ToString();
             case CheckStatus.Yellow:
-                outputBuilder.Append(_additionalInfo);
+                outputBuilder.Append(AdditionalInformation);
                 return outputBuilder.ToString();
         }
 
@@ -71,7 +66,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         if (!_fileHasBeenIgnored) return outputBuilder.ToString();
 
         outputBuilder.Append(Environment.NewLine);
-        outputBuilder.Append(_additionalInfo);
+        outputBuilder.Append(AdditionalInformation);
 
         return outputBuilder.ToString();
     }
@@ -194,7 +189,7 @@ public class SecretsCheck(string pathToGitRepo, GlobalConfiguration config) : Ch
         if (_foundSecretsJson.Count == 0 && _fileHasBeenIgnored)
         {
             Status = CheckStatus.Yellow;
-            _additionalInfo = "All secrets found are in files that are ignored by .gitignore.";
+            AdditionalInformation = "All secrets found are in files that are ignored by .gitignore.";
         }
 
         // If some secrets are found in ignored files, set status to red

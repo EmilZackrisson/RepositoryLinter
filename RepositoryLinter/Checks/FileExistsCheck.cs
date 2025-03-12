@@ -14,8 +14,6 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
     /// </summary>
     public CheckStatus StatusWhenEmpty { get; init; } = CheckStatus.Green;
 
-    private string? _additionalInfo;
-
     /// <summary>
     /// Recursively search for the file in the directory. Default is false.
     /// </summary>
@@ -44,7 +42,7 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
         if (files.Count > 1)
         {
             Status = CheckStatus.Yellow;
-            _additionalInfo = $"\nMultiple files matching {fileName} found in the directory {directory}.";
+            AdditionalInformation = $"\nMultiple files matching {fileName} found in the directory {directory}.";
             return;
         }
 
@@ -55,7 +53,7 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
 
         if (exists && _isEmpty)
         {
-            _additionalInfo += $"File {fileName} is empty.";
+            AdditionalInformation += $"File {fileName} is empty.";
             Status = StatusWhenEmpty;
             return;
         }
@@ -105,9 +103,9 @@ public class FileExistsCheck(string relativeFilePath, string pathToGitDirectory)
             str += "\nFile is empty";
         }
 
-        if (_additionalInfo != "")
+        if (AdditionalInformation != "")
         {
-            str += _additionalInfo;
+            str += '\n' + AdditionalInformation;
         }
 
         return str;

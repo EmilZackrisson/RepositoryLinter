@@ -5,7 +5,7 @@ Checks:
     AllowedToFail: true
   - Name: "README exists"
     AllowedToFail: true
-  - Name: "GitHub Workdflow exists"
+  - Name: "GitHub Workflow exists"
     AllowedToFail: true
   - Name: "Secrets check"
     AllowedToFail: true

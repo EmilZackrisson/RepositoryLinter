@@ -31,16 +31,42 @@ public class GlobalConfiguration
 
     public bool IsFromConfigFile { get; set; }
 
-    public static GlobalConfiguration ReadConfiguration(string path)
+    public GlobalConfiguration(string[] programArguments)
     {
-        Console.WriteLine("Reading configuration file");
+        // Get index of "--config" argument
+        var configIndex = Array.IndexOf(programArguments, "--config");
+
+        // If the argument is not found, return
+        if (configIndex == -1)
+        {
+            return;
+        }
+
+        // If the argument is found, get the path to the configuration file
+        var configPath = programArguments[configIndex + 1];
+
+        // Read the configuration file and set the properties
+        ReadAndSetConfiguration(configPath);
+    }
+
+    public GlobalConfiguration()
+    {
+    }
+
+    private void ReadAndSetConfiguration(string path)
+    {
         var deserializer = new DeserializerBuilder()
             .IgnoreUnmatchedProperties()
             .Build();
-        var yaml = File.ReadAllText(path);
-        var config = deserializer.Deserialize<GlobalConfiguration>(yaml);
-        config.IsFromConfigFile = true;
+        var yamlString = File.ReadAllText(path);
+        var config = deserializer.Deserialize<GlobalConfiguration>(yamlString);
 
-        return config;
+        TruncateOutput = config.TruncateOutput;
+        GitIgnoreEnabled = config.GitIgnoreEnabled;
+        CleanUp = config.CleanUp;
+        PathToSaveGitRepos = config.PathToSaveGitRepos;
+        Checks = config.Checks;
+        DynamicConfiguration = config.DynamicConfiguration;
+        IsFromConfigFile = true;
     }
 }

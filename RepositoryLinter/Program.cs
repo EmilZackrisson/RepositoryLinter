@@ -31,12 +31,21 @@ var pathToSaveOption = new Option<string?>("--path-to-save-to",
     "Directory to save the repository to. If not provided, a temporary directory will be used.");
 rootCommand.AddOption(pathToSaveOption);
 
+// Configuration file option
 var configOption = new Option<FileInfo?>("--config", "Path to configuration file.");
+
+// Validate configuration file
+configOption.AddValidator((result) =>
+{
+    if (result.GetValueOrDefault<FileInfo?>() is not { Exists: true })
+    {
+        result.ErrorMessage = $"Configuration file '{result.GetValueOrDefault<FileInfo?>()}' does not exist.";
+    }
+});
 rootCommand.AddOption(configOption);
 
-// Create global config
-var config = new GlobalConfiguration();
-
+// Create global config with program arguments so we can read the configuration file (if provided)
+var config = new GlobalConfiguration(args);
 
 var commandLineBuilder = new CommandLineBuilder(rootCommand);
 
@@ -45,24 +54,6 @@ commandLineBuilder.AddMiddleware(async (context, next) =>
 {
     var tokens = context.ParseResult.Tokens;
     var args = tokens.Select(t => t.Value).ToArray();
-
-    if (context.ParseResult.HasOption(configOption))
-    {
-        try
-        {
-            var configFile = context.ParseResult.GetValueForOption(configOption)!;
-            var newConfig = GlobalConfiguration.ReadConfiguration(configFile.FullName);
-            if (newConfig.IsFromConfigFile)
-            {
-                config = newConfig;
-            }
-        }
-        catch (FileNotFoundException e)
-        {
-            await Console.Error.WriteLineAsync(e.Message);
-            Environment.Exit(1);
-        }
-    }
 
     // Set global options
     config.GitIgnoreEnabled = !args.Contains("--ignore-gitignore");

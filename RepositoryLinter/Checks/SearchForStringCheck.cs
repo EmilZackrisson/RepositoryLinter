@@ -11,10 +11,9 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
     /// Invert the result of the check. Default is false.
     /// </summary>
     public bool InvertResult { get; init; }
-    
+
     private readonly List<string> _files = [];
-    
-    private string _additionalInfo = "";
+
     public override void Run()
     {
         var files = Directory.EnumerateFiles(gitRepoPath, "*.*", SearchOption.AllDirectories);
@@ -28,7 +27,7 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
             {
                 continue; // Skip files that are ignored by .gitignore if we have already found a file that is ignored.
             }
-            
+
             // Read the file in chunks to avoid reading the entire file into memory
             const int chunkSize = 1024;
             using var fileReader = File.OpenText(file);
@@ -37,16 +36,17 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
             while ((bytesRead = fileReader.Read(buffer, 0, chunkSize)) > 0)
             {
                 var chunk = new string(buffer, 0, bytesRead);
-                
+
                 if (!chunk.Contains(searchString)) continue;
-                
+
                 if (fileIsIgnored)
                 {
-                    _additionalInfo = "Found string in files that are ignored by .gitignore. If you want to search in these files, run the program with the --ignore-gitignore flag.";
+                    AdditionalInformation =
+                        "Found string in files that are ignored by .gitignore. If you want to search in these files, run the program with the --ignore-gitignore flag.";
                     hasIgnoredFiles = true;
                     break;
                 }
-                
+
                 _files.Add(file);
                 break;
             }
@@ -57,6 +57,7 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
         {
             found = !found;
         }
+
         Status = found ? CheckStatus.Green : StatusWhenFailed;
     }
 
@@ -66,7 +67,8 @@ public class SearchForStringCheck(string searchString, string gitRepoPath, Globa
         {
             return base.ToString();
         }
-        
-        return base.ToString() + $"\nSearch string: {searchString} found in following files:\n{string.Join("\n", _files)}\nTotal number of files: {_files.Count}\n{_additionalInfo}";
+
+        return base.ToString() +
+               $"\nSearch string: {searchString} found in following files:\n{string.Join("\n", _files)}\nTotal number of files: {_files.Count}\n{AdditionalInformation}";
     }
 }

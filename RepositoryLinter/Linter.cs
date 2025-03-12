@@ -42,6 +42,7 @@ public class Linter(Git git, GlobalConfiguration config)
             if (check != null && checkerConfig.AllowedToFail && check.Status == CheckStatus.Red)
             {
                 check.Status = CheckStatus.Yellow;
+                check.AddAdditionalInformationLine("This check is marked as allowed to fail.");
             }
         }
     }
